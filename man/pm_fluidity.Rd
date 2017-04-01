@@ -14,10 +14,12 @@ pm_fluidity(panm, n.sim = 10)
 \description{
 This function computes fluidity with sampling, as implemented on package micropan (optimized for speed).
   Fluidity takes values in [0,1], with 1 denoting no common genes.
-  This metric was introduced in:
-  "Genomic fluidity: an integrative view of gene diversity within microbial populations" (Kislyuk et al ,2011)
 }
 \examples{
 pm_fluidity(panm, n.sim=100)
 
+}
+\references{
+A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
+M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 }

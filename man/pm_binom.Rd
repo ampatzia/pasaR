@@ -12,11 +12,17 @@ pm_binom(pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 }
 \description{
-This function determines the closedness of the pangenome using a binomial mixture fit of the data
-   based on Heaps Law. This returns pangenome and core size estimation. This is an optimized version
-   of the binomixEstimate() function from package micropan.
+This function determines the closedness of the pangenome using a binomial mixture fit of the data.
+}
+\details{
+The function returns pangenome and core size estimation along with the propabilities
+ of the components.This is an optimized version of the binomixEstimate() function from package
+ micropan  (Snipen & Hiland, 2015).
 }
 \examples{
 pm_binom(panm, K.range =2:8)
 
+}
+\references{
+L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
 }

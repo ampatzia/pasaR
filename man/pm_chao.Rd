@@ -11,11 +11,19 @@ pm_chao(panm)
 }
 \description{
 This function computes two versions of the lower bound Chao Estimator for the pangenome
-   size along with variance and a 95% CI . This is a conservative estimator, ie. it is
-   likely to produce a small estimation of the pangenome compared to other estimators.
+   size.
+}
+\details{
+The function prodused a biased & unbiased version of the metric along with variance
+   and a 95% CI . This is a conservative estimator, ie. it is likely to produce a small
+   estimation of the pangenome compared to other estimators.
    This function is an optimized and expanded version of chao() from package micropan.
 }
 \examples{
 pm_chao(panm)
 
+}
+\references{
+Chao, A. (1987). Estimating the population size for capture-recapture data with unequal catchability. Biometrics 43, 783-791.
+Gotelli, N.J. and Colwell, R.K., 2011. Estimating species richness. Biological diversity: frontiers in measurement and assessment, 12, pp.39-54.
 }

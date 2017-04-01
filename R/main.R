@@ -253,16 +253,20 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE) {
 #'  Heap's Law fitting
 #'
 #' This function determines the closedness of the pangenome using a curve fit of the data
-#'    based on Heaps Law. This returns two estimated parameters, intercept and decay parameter a.
-#'    If a<1 then the pangenome is considered to be open. This is an optimized version
-#'    of the heaps() function from package micropan.
+#'    based on Heaps Law.
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.perm Number of permutations
-
+#'
+#' @details The regression fit returns, two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
+#'    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
+#'
+#'
+#'
 #' @export
 #' @examples pm_heaps(panm,100)
 #'
+#' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
 pm_heaps<-function (panmatrix, n.perm)
 
@@ -300,22 +304,22 @@ return(p.hat)
 
 
 
-
-
-
-
 #'  Binomial mixture fitting
 #'
-#' This function determines the closedness of the pangenome using a binomial mixture fit of the data
-#'    based on Heaps Law. This returns pangenome and core size estimation. This is an optimized version
-#'    of the binomixEstimate() function from package micropan.
+#' This function determines the closedness of the pangenome using a binomial mixture fit of the data.
+#'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param K.range Range of model components to be tested
-
+#'
+#' @details The function returns pangenome and core size estimation along with the propabilities
+#'  of the components.This is an optimized version of the binomixEstimate() function from package
+#'  micropan  (Snipen & Hiland, 2015).
+#'
 #' @export
 #' @examples pm_binom(panm, K.range =2:8)
 #'
+#' @references L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
 
 pm_binom<-function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
 {
@@ -370,14 +374,26 @@ pm_chao<-function (panm) {
 #'  Chao lower bound estimator
 #'
 #' This function computes two versions of the lower bound Chao Estimator for the pangenome
-#'    size along with variance and a 95% CI . This is a conservative estimator, ie. it is
-#'    likely to produce a small estimation of the pangenome compared to other estimators.
-#'    This function is an optimized and expanded version of chao() from package micropan.
+#'    size.
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#'
+#'@details The function prodused a biased & unbiased version of the metric along with variance
+#'    and a 95% CI . This is a conservative estimator, ie. it is likely to produce a small
+#'    estimation of the pangenome compared to other estimators.
+#'    This function is an optimized and expanded version of chao() from package micropan.
+#'
+#'
+#'
+#'
 #' @export
 #' @examples pm_chao(panm)
+#'
+#' @references
+#' Chao, A. (1987). Estimating the population size for capture-recapture data with unequal catchability. Biometrics 43, 783-791.
+#' Gotelli, N.J. and Colwell, R.K., 2011. Estimating species richness. Biological diversity: frontiers in measurement and assessment, 12, pp.39-54.
+#'
 #'
 
 pm_chao<-function (panm) {
@@ -413,16 +429,20 @@ pm_chao<-function (panm) {
 #'
 #' This function computes fluidity with sampling, as implemented on package micropan (optimized for speed).
 #'   Fluidity takes values in [0,1], with 1 denoting no common genes.
-#'   This metric was introduced in:
-#'   "Genomic fluidity: an integrative view of gene diversity within microbial populations" (Kislyuk et al ,2011)
+
 #'
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.sim Number of simulations
+#' @Details  This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
+#'   context of a pangenome analysis in (Kislyuk et al ,2011).
 #' @export
 #' @examples pm_fluidity(panm, n.sim=100)
 #'
+#' @references
+#' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
+#' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
 pm_fluidity<-function (panm, n.sim = 10)
 {

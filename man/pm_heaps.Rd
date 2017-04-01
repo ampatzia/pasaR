@@ -13,11 +13,16 @@ pm_heaps(panmatrix, n.perm)
 }
 \description{
 This function determines the closedness of the pangenome using a curve fit of the data
-   based on Heaps Law. This returns two estimated parameters, intercept and decay parameter a.
-   If a<1 then the pangenome is considered to be open. This is an optimized version
-   of the heaps() function from package micropan.
+   based on Heaps Law.
+}
+\details{
+The regression fit returns, two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
+   of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
 }
 \examples{
 pm_heaps(panm,100)
 
+}
+\references{
+Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 }
