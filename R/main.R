@@ -453,8 +453,7 @@ pm_fluidity<-function (panm, n.sim = 10)
     ii <- sample(ng, 2)
     g1 <- panm[ii[1], ]
     g2 <- panm[ii[2], ]
-    flu[i] <- (sum(g1 > 0 & g2 == 0) + sum(g1 == 0 & g2 >
-                                             0))/(sum(g1) + sum(g2))
+    flu[i] <- sum(abs(g1-g2))/(sum(g1) + sum(g2))
   }
   flu.list <- list(Mean = mean(flu), Std = sd(flu))
   return(flu.list)
@@ -527,17 +526,17 @@ gtools_comb<-function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.sim Number of simulations
 #' @export
-#' @examples pm_fluidity(panm)
+#' @examples pm_fluidity_all(panm)
 #'
 
-panm_fluidity_all<-function (panm){
+pm_fluidity_all<-function (panm){
 
   all_comb<-as.data.frame(gtools_comb(nrow(panm),2))
   panm <- sapply(panm, function(x) as.logical(x))
 
   fluid<-function(x){
     g1<-panm[x,] %>% .[,colSums(.)>0]
-    flu<-(sum(g1[1,]==TRUE & g1[2,] == FALSE) + sum(g1[1,] == FALSE & g1[2,]==TRUE))/sum(colSums(g1))
+    flu<-sum(abs(g[1,]-g[2,]))/sum(colSums(g1))
 
     return(flu)}
 
