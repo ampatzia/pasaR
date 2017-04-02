@@ -8,6 +8,6 @@ gtools_comb(n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 }
 \description{
 This helper function is produces all possible combinations for a set of numbers.
-  This is an direct copy of the combination() function of package gtools, and is
+  This is an direct copy of the combination() function from package gtools, and is
   used in function pm_fludity_all().
 }

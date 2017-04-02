@@ -175,7 +175,7 @@ cp_plot<-function (object, show_cluster,plot_type)
 
   if(missing(show_cluster)){show_cluster=0}
 
-  if(missing(plot_type)){plot_type="line"}
+  if(missing(plot_type)){plot_type="point"}
 
 
   object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
@@ -258,7 +258,7 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE) {
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.perm Number of permutations
 #'
-#' @details The regression fit returns, two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
+#' @details The regression fit returns two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
 #'    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
 #'
 #'
@@ -396,7 +396,7 @@ pm_chao<-function (panm) {
 #'
 #'
 
-pm_chao<-function (panm) {
+pm_chao<-function (panm,biased=FALSE) {
   panm<-sapply(as.data.frame(panm),function(x) as.logical(x))
   y <- table(factor(colSums(panm), levels = 1:dim(panm)[1]))
 
@@ -415,10 +415,18 @@ pm_chao<-function (panm) {
   u_bound<- sum(y) +(pan.size-sum(y))*C_var
 
   if(is.null(pan.size.biased)) {pan.size.biased<-NA}
-
+   if( biased==TRUE){
   results<-c(pan.size.biased,pan.size,chao.variance,l_bound,u_bound)
 
   names(results)<- c("Estimated pangenome size - Biased","Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound","CI (95%)- Upper Bound")
+  }else{
+    results<-c(pan.size,chao.variance,l_bound,u_bound)
+
+    names(results)<- c("Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound","CI (95%)- Upper Bound")
+  }
+
+
+
   return(results)
 
 }
@@ -435,7 +443,7 @@ pm_chao<-function (panm) {
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.sim Number of simulations
-#' @Details  This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
+#' @Details Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
 #'   context of a pangenome analysis in (Kislyuk et al ,2011).
 #' @export
 #' @examples pm_fluidity(panm, n.sim=100)
@@ -463,7 +471,7 @@ pm_fluidity<-function (panm, n.sim = 10)
 #'  Helper function: gtools::combination
 #'
 #' This helper function is produces all possible combinations for a set of numbers.
-#'   This is an direct copy of the combination() function of package gtools, and is
+#'   This is an direct copy of the combination() function from package gtools, and is
 #'   used in function pm_fludity_all().
 #'
 
@@ -517,17 +525,20 @@ gtools_comb<-function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 #'  Genome Fluidity
 #'
 #' This function computes fluidity without sampling.
-#'   Fluidity takes values in [0,1], with 1 denoting no common genes.
-#'   This metric was introduced in:
-#'   "Genomic fluidity: an integrative view of gene diversity within microbial populations" (Kislyuk et al ,2011)
 #'
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.sim Number of simulations
 #' @export
+#' @details  Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
+#'   context of a pangenome analysis in (Kislyuk et al ,2011).
+#'
 #' @examples pm_fluidity_all(panm)
 #'
+#'  @references
+#' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
+#' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
 pm_fluidity_all<-function (panm){
 
@@ -536,7 +547,7 @@ pm_fluidity_all<-function (panm){
 
   fluid<-function(x){
     g1<-panm[x,] %>% .[,colSums(.)>0]
-    flu<-sum(abs(g[1,]-g[2,]))/sum(colSums(g1))
+    flu<-sum(abs(g1[1,]-g1[2,]))/sum(colSums(g1))
 
     return(flu)}
 

@@ -9,10 +9,12 @@ Description: A package that reads genome clustering results and allows
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: 
+Depends:
     tidyverse,
     stringi,
     reshape2,
-    vegan,
     knitr
 RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

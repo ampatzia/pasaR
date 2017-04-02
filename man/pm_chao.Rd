@@ -4,7 +4,7 @@
 \alias{pm_chao}
 \title{Chao lower bound estimator}
 \usage{
-pm_chao(panm)
+pm_chao(panm, biased = FALSE)
 }
 \arguments{
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}

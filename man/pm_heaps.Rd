@@ -16,7 +16,7 @@ This function determines the closedness of the pangenome using a curve fit of th
    based on Heaps Law.
 }
 \details{
-The regression fit returns, two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
+The regression fit returns two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
 }
 \examples{
