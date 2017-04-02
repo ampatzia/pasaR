@@ -1,0 +1,129 @@
+---
+title: "pasaR: Pangenome Statistical Analysis in R"
+author: "Stelios Mpatziakas"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, message= FALSE, warning= FALSE}
+library(pasaR) 
+library(knitr)
+library(micropan)
+library(microbenchmark)
+knitr::opts_chunk$set(dev = 'png')
+
+```
+
+```{r, echo=FALSE}
+data( "Mpneumoniae.blast.panmat" )
+panm<- Mpneumoniae.blast.panmat
+panm<-as.data.frame(panm)
+rm(Mpneumoniae.blast.panmat)
+
+```
+
+# Introduction
+
+ In this vignette we will showcase the package functions on the Mpneumoniae dataset offered on package **micropan**, obtained by  'r data( "Mpneumoniae.blast.panmat" )'.
+
+# Genome summary
+
+A summary of the genome participation to the clusters allows for an initial overview of the data
+
+```{r, echo=FALSE}
+
+kable(panm_summary(panm))
+
+```
+
+
+# Exploring the data
+
+Another way of exploring the genome data is throught the use of plots. Three types of graphics are offered. User can  plot  Genome - Cluster participation, with  'r pm_plot()':
+```{r,echo=FALSE}
+
+pm_plot(panm,plot_type = "bar")
+
+
+```
+
+Cluster participation - Genomes, with 'r cp_plot()':
+
+```{r,echo=FALSE}
+
+cp_plot(panm,plot_type = "bar")
+
+```
+
+
+Genes - Cluster participation, with 'r gp_plot()':
+
+```{r,echo=FALSE}
+
+gp_plot(panm,plot_type = "bar",collapsed = TRUE)
+
+```
+
+
+
+# Heaps Law fitting
+To decribe the fit of the data , two estimated parameters, intercept and decay parameter a. If a<1 then the pangenome is considered to be open. In this case we see that the pangenome is closed, meaning that some point adding new Pneumoniae strains to our data will not add new genes.
+
+```{r,echo= FALSE}
+pm_heaps(panm,n.perm=1000)
+
+```
+This is an optimized version of the heaps() function from package micropan.
+
+# Binomial mixture fitting
+
+We can estimate the pangenome size and the pangenome core size through binomial mixtures as proposed by Snipen & Liland & implemented in package **micropan**. One must search the model with the optimal number of components. This is determined comparing the Bayesian Information criterion scores of the models and chosing the one with the smaller score. In our case the pangenome is composed by three components.  
+```{r, echo=FALSE}
+
+pm_binom(panm, K.range = 3 )
+```
+
+# Chao population estimator
+
+Another way to estimate the pangenome size  using the Chao lower bound estimator. The unbiased version of the estimator is provided, so results will vary in comparison with the results of function 'r chao()' **micropan** 
+```{r}
+pm_chao(panm)
+
+```
+
+# Fluidity with sampling
+
+
+Another measure of interest is fluidity takes values in [0,1], with 1 denoting no common genes. Function **pm_fluidity()** computes fluidity with sampling, as implemented on package micropan, optimized for speed.
+
+```{r, echo= FALSE}
+
+pm_fluidity(panm, n.sim=1000)
+
+```
+
+# Fluidity without sampling
+
+The function **pm_fluidity_all** computes the exact value of fluidity, the standard deviation, the values for every pair and a mean value for each genome paired to all other genomes.
+
+```{r, echo=FALSE}
+pm_fluidity_all(panm)
+```
+
+
+#Runtime comparison of paraR to micropan
+
+Below we an example of optimized runtime of **pasaR** functions to corresponding to **micropan**. We calculate fluidity with 100 simulations.
+
+
+* Fluidity
+```{r, echo=FALSE}
+microbenchmark(fluidity(panm, n.sim = 100))
+
+microbenchmark(pm_fluidity(panm,, n.sim = 100))
+```
