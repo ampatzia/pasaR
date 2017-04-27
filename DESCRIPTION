@@ -13,7 +13,9 @@ Depends:
     tidyverse,
     stringi,
     reshape2,
-    knitr
+    stringr,
+    readr,
+    fpc
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
