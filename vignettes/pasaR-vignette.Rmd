@@ -114,16 +114,3 @@ The function **pm_fluidity_all** computes the exact value of fluidity, the stand
 ```{r, echo=FALSE}
 pm_fluidity_all(panm)
 ```
-
-
-#Runtime comparison of paraR to micropan
-
-Below we an example of optimized runtime of **pasaR** functions to corresponding to **micropan**. We calculate fluidity with 100 simulations.
-
-Do not run
-* Fluidity
-```{r, echo=FALSE}
-#microbenchmark(fluidity(panm, n.sim = 100))
-
-#microbenchmark(pm_fluidity(panm,, n.sim = 100))
-```
