@@ -693,7 +693,7 @@ organism_names_panmatrix_fami<-function (file) {
 #' @export
 #' @examples organism_names_panmatrix(file)
 
-make_panmatrix<-function(x){
+org_names<-function(x){
 
   make_base_df <- function(file){
 
