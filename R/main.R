@@ -220,7 +220,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
 #'
 
 
-gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE) {
+gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
   if (missing(show_cluster)) {show_cluster = 0}
   if (missing(plot_type)) {plot_type = "point"}
   if(missing(use_log)){use_log=TRUE}
