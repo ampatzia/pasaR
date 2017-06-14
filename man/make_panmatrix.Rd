@@ -2,27 +2,17 @@
 % Please edit documentation in R/main.R
 \name{make_panmatrix}
 \alias{make_panmatrix}
-\alias{make_panmatrix}
 \title{Make panmatrix (MCL data)}
 \usage{
-make_panmatrix(x)
-
 make_panmatrix(x)
 }
 \arguments{
 \item{file}{Disk Path to file}
-
-\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
-
-\item{n.sim}{Number of simulations}
 }
 \description{
 This function allows importing MCL output
-
-This function outputs the genome names of a MVL clustering type input
 }
 \examples{
 make_panmatrix()
 
-organism_names_panmatrix(file)
 }

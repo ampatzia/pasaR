@@ -4,7 +4,7 @@
 \alias{cp_plot}
 \title{Cluster participation plots}
 \usage{
-cp_plot(object, show_cluster, plot_type)
+cp_plot(object, show_cluster, plot_type, use_log)
 }
 \arguments{
 \item{show_cluster}{Integer value  optional parameter allows to user to "zoom",

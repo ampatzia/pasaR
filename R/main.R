@@ -120,11 +120,11 @@ panm_summary<-function (object, ...)
 #' @param plot_type Can be either line or bar
 
 #' @export
-#' @examples make_panmatrix_fami()
+#' @examples pm_plot(panm)
 #'
 
 
-pm_plot<-function (object, show_cluster,plot_type)
+pm_plot<-function (object, show_cluster,plot_type,use_log)
 {
   #show_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
   #below it
@@ -132,6 +132,7 @@ pm_plot<-function (object, show_cluster,plot_type)
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="line"}
+  if(missing(use_log)){use_log=TRUE}
 
 
   object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
@@ -140,6 +141,9 @@ pm_plot<-function (object, show_cluster,plot_type)
   y <- as.data.frame(table(factor(colSums(object), levels = levs)))
   colnames(y)<-c("Genomes","Clusters")
   y$Genomes<-as.numeric(as.character(y$Genomes))
+
+  if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
+
   y<-y[!y$Genomes<show_cluster,]
   p<-ggplot(y,aes(x=Genomes,y=Clusters))
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="line"){
@@ -168,7 +172,7 @@ pm_plot<-function (object, show_cluster,plot_type)
 #'
 
 
-cp_plot<-function (object, show_cluster,plot_type)
+cp_plot<-function (object, show_cluster,plot_type,use_log)
 {
   #show_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
   #below it
@@ -176,6 +180,7 @@ cp_plot<-function (object, show_cluster,plot_type)
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="point"}
+  if(missing(use_log)){use_log=TRUE}
 
 
   object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
@@ -185,6 +190,8 @@ cp_plot<-function (object, show_cluster,plot_type)
 
   colnames(y)<-c("Genomes","Clusters")
   y$Genomes<-as.numeric(as.character(y$Genomes))
+
+  if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
   y<-y[!y$Genomes<show_cluster,]
   p<-ggplot(y,aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0,max(y$Genomes)+5,2))
 
@@ -196,7 +203,6 @@ cp_plot<-function (object, show_cluster,plot_type)
     }
 
 }
-
 
 
 
@@ -215,12 +221,10 @@ cp_plot<-function (object, show_cluster,plot_type)
 
 
 gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE) {
-  if (missing(show_cluster)) {
-    show_cluster = 0
-  }
-  if (missing(plot_type)) {
-    plot_type = "point"
-  }
+  if (missing(show_cluster)) {show_cluster = 0}
+  if (missing(plot_type)) {plot_type = "point"}
+  if(missing(use_log)){use_log=TRUE}
+
   levs <- 1:nrow(object)
   y <- data.frame(Genes = colSums(object), Cluster = seq(from = 1,
                                                          to = ncol(object), by = 1))
@@ -235,6 +239,7 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE) {
     y1<-data.frame(Genes=p_limit,Cluster=sum(y1$Cluster))
     y<-bind_rows(y,y1)}
 
+  if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
 
   p <- ggplot(y, aes(x = Genes, y = Cluster))
   if (plot_type == "bar") {

@@ -4,7 +4,7 @@
 \alias{pm_plot}
 \title{Panmatrix Plots}
 \usage{
-pm_plot(object, show_cluster, plot_type)
+pm_plot(object, show_cluster, plot_type, use_log)
 }
 \arguments{
 \item{show_cluster}{Integer value  optional parameter allows to user to "zoom",
@@ -19,6 +19,6 @@ This function produces a basic plot of the pangenome.
    This can be either a line plot or a bar plot.
 }
 \examples{
-make_panmatrix_fami()
+pm_plot(panm)
 
 }
