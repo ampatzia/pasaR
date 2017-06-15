@@ -118,7 +118,7 @@ panm_summary<-function (object, ...)
 #' @param show_cluster Integer value  optional parameter allows to user to "zoom",
 #'     ignoring clusters that have organism participation below it
 #' @param plot_type Can be either line or bar
-
+#' @param use_log Logical:Scale axis containing clusters with log
 #' @export
 #' @examples pm_plot(panm)
 #'
@@ -166,7 +166,7 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
 #' @param show_cluster Integer value  optional parameter allows to user to "zoom",
 #'     ignoring clusters that have organism participation below it
 #' @param plot_type Can be either line or bar
-
+#' @param use_log Logical:Scale axis containing clusters with log
 #' @export
 #' @examples cp_plot(panm)
 #'
@@ -216,6 +216,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
 #'     ignoring clusters that have organism participation below it
 #' @param plot_type Can be either line or bar
 #' @param plot_type Logical, TRUE merges all clusters with more than 3 times the number of genomes examined
+#' @param use_log Logical:Scale axis containing clusters with log
 #' @export
 #' @examples gp_plot(panm)
 #'
@@ -449,8 +450,8 @@ pm_chao<-function (panm,biased=FALSE) {
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param n.sim Number of simulations
-#' @Details Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
-#'   context of a pangenome analysis in (Kislyuk et al ,2011).
+#' @details Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
+#' context of a pangenome analysis in (Kislyuk et al ,2011).
 #' @export
 #' @examples pm_fluidity(panm, n.sim=100)
 #'
@@ -797,3 +798,37 @@ negTruncLogLike<-function (p, y, core.p)
   }
   return(-L)
 }
+
+
+
+#'  grid plot
+#'
+#' This function outputs cluster spread for genomes, genome participation per cluster,
+#' gene participation per cluster and a brief summary allowing a quick exploration
+#' of the available data
+#'
+#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param use_log Logical:Scale axis containing clusters with log
+#' @export
+#' @examples grid_plot(panm)
+
+
+grid_plot<-function(panm,use_log){
+  if(missing(use_log)){use_log=TRUE}
+  a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")
+  a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")
+  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")
+  a4<-panm_summary(panm)
+  if(nrow(a4)>14){
+    cut_seq<-seq(0,nrow(panm)+1,8)
+    cut_seq[length(cut_seq)]<-nrow(panm)
+    a4$Genomes<-as.numeric(as.factor(a4$Genomes))
+    a4$Genomes<-cut(a4$Genomes,cut_seq)
+    a4<-a4%>%group_by(Genomes) %>%
+      summarise(Clusters = sum(Clusters))
+
+  }
+
+  a4<-tableGrob(a4,theme=ttheme_minimal(base_size = 9))
+
+  ?grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))}

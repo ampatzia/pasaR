@@ -4,13 +4,15 @@
 \alias{gp_plot}
 \title{Gene participation plots}
 \usage{
-gp_plot(object, show_cluster, plot_type, collapsed = FALSE)
+gp_plot(object, show_cluster, plot_type, collapsed = FALSE, use_log)
 }
 \arguments{
 \item{show_cluster}{Integer value  optional parameter allows to user to "zoom",
 ignoring clusters that have organism participation below it}
 
 \item{plot_type}{Can be either line or bar}
+
+\item{use_log}{Logical:Scale axis containing clusters with log}
 
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 

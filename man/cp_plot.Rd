@@ -12,6 +12,8 @@ ignoring clusters that have organism participation below it}
 
 \item{plot_type}{Can be either line or bar}
 
+\item{use_log}{Logical:Scale axis containing clusters with log}
+
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 }
 \description{
