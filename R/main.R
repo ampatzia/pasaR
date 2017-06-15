@@ -174,9 +174,7 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
 
 cp_plot<-function (object, show_cluster,plot_type,use_log)
 {
-  #show_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
-  #below it
-
+  #s
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="point"}
@@ -201,6 +199,9 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
     p+ geom_point()}else{
       message("This type of plot is not supported, use plot type point or bar.")
     }
+  #how_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
+  #below it
+
 
 }
 
@@ -239,7 +240,7 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
     y1<-data.frame(Genes=p_limit,Cluster=sum(y1$Cluster))
     y<-bind_rows(y,y1)}
 
-  if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
+  if(use_log==TRUE){y$Cluster<-log(y$Cluster)}
 
   p <- ggplot(y, aes(x = Genes, y = Cluster))
   if (plot_type == "bar") {
