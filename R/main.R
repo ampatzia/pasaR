@@ -831,4 +831,4 @@ grid_plot<-function(panm,use_log){
 
   a4<-tableGrob(a4,theme=ttheme_minimal(base_size = 9))
 
-  ?grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))}
+  grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))}
