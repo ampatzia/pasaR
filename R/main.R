@@ -146,6 +146,7 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
 
   y<-y[!y$Genomes<show_cluster,]
   p<-ggplot(y,aes(x=Genomes,y=Clusters))
+  if(use_log==TRUE){p<-p+ylab("Cluster (log)")}
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="line"){
 
 
@@ -192,6 +193,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
   if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
   y<-y[!y$Genomes<show_cluster,]
   p<-ggplot(y,aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0,max(y$Genomes)+5,2))
+  if(use_log==TRUE){p<-p+xlab("Cluster (log)")}
 
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="point"){
 
@@ -244,6 +246,10 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
   if(use_log==TRUE){y$Cluster<-log(y$Cluster)}
 
   p <- ggplot(y, aes(x = Genes, y = Cluster))
+  if(use_log==TRUE){p<-p+ylab("Cluster (log)")}
+
+
+
   if (plot_type == "bar") {
     p + geom_bar(stat = "identity")
   }
