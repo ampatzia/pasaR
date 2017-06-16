@@ -132,7 +132,7 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="line"}
-  if(missing(use_log)){use_log==TRUE}
+  if(missing(use_log)){use_log=TRUE}
 
 
   object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
@@ -179,7 +179,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="point"}
-  if(missing(use_log)){use_log==TRUE}
+  if(missing(use_log)){use_log=TRUE}
 
 
   object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
@@ -227,7 +227,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
 gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
   if (missing(show_cluster)) {show_cluster = 0}
   if (missing(plot_type)) {plot_type = "point"}
-  if(missing(use_log)){use_log==TRUE}
+  if(missing(use_log)){use_log=TRUE}
 
   levs <- 1:nrow(object)
   y <- data.frame(Genes = colSums(object), Cluster = seq(from = 1,
@@ -820,7 +820,7 @@ negTruncLogLike<-function (p, y, core.p)
 
 grid_plot<-function(panm,use_log){
 
-  if(missing(use_log)){use_log==TRUE}
+  if(missing(use_log)){use_log=TRUE}
 
   if(use_log==TRUE){
   a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
