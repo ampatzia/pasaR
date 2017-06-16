@@ -269,7 +269,7 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'    based on Heaps Law.
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.perm Number of permutations
+#' @param n_perm Number of permutations
 #'
 #' @details The regression fit returns two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
 #'    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
@@ -281,13 +281,13 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'
 #' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
-pm_heaps<-function (panmatrix, n.perm){
+pm_heaps<-function (panmatrix, n_perm){
   if (missing(n_perm)) {n_perm = 100}
   pan.matrix<-sapply(panmatrix,function(x) as.logical(x))
 ng<-nrow(panmatrix)
-nmat <- matrix(0, nrow = (ng - 1), ncol = n.perm)
+nmat <- matrix(0, nrow = (ng - 1), ncol = n_perm)
 
-nmat<-replicate(n.perm,{
+nmat<-replicate(n_perm,{
 
   cm <- apply(pan.matrix[sample(ng), ], 2, cumsum)
   rowSums((cm == 1)[2:ng, ] & (cm == 0)[1:(ng -  1), ])
