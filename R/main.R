@@ -269,7 +269,7 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'    based on Heaps Law.
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.perm Number of permutations
+#' @param n_perm Number of permutations
 #'
 #' @details The regression fit returns two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
 #'    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
@@ -281,13 +281,13 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'
 #' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
-pm_heaps<-function (panmatrix, n.perm){
+pm_heaps<-function (panmatrix, n_perm){
   if (missing(n_perm)) {n_perm = 100}
   pan.matrix<-sapply(panmatrix,function(x) as.logical(x))
 ng<-nrow(panmatrix)
-nmat <- matrix(0, nrow = (ng - 1), ncol = n.perm)
+nmat <- matrix(0, nrow = (ng - 1), ncol = n_perm)
 
-nmat<-replicate(n.perm,{
+nmat<-replicate(n_perm,{
 
   cm <- apply(pan.matrix[sample(ng), ], 2, cumsum)
   rowSums((cm == 1)[2:ng, ] & (cm == 0)[1:(ng -  1), ])
@@ -827,9 +827,9 @@ grid_plot<-function(panm,use_log){
   a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
   a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")}else{
 
-        a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
-        a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
-        a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
+        a1<-pm_plot(panm,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
+        a2<-cp_plot(panm,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
+        a3<-gp_plot(panm,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
            }
 
   a4<-panm_summary(panm)
@@ -843,4 +843,5 @@ grid_plot<-function(panm,use_log){
 
   a4<-tableGrob(a4,theme=ttheme_minimal(base_size = 9))
 
-  grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))}
+  grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))
+  }
