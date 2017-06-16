@@ -275,9 +275,9 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'
 #' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
-pm_heaps<-function (panmatrix, n.perm)
-
-{ pan.matrix<-sapply(panmatrix,function(x) as.logical(x))
+pm_heaps<-function (panmatrix, n.perm){
+  if (missing(n_perm)) {n_perm = 100}
+  pan.matrix<-sapply(panmatrix,function(x) as.logical(x))
 ng<-nrow(panmatrix)
 nmat <- matrix(0, nrow = (ng - 1), ncol = n.perm)
 
@@ -308,7 +308,6 @@ p.hat <- fit$par
 names(p.hat) <- c("Intercept", "alpha")
 return(p.hat)
 }
-
 
 
 #'  Binomial mixture fitting
@@ -814,20 +813,27 @@ negTruncLogLike<-function (p, y, core.p)
 
 
 grid_plot<-function(panm,use_log){
-  if(missing(use_log)){use_log=TRUE}
-  a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")
-  a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")
-  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")
-  a4<-panm_summary(panm)
-  if(nrow(a4)>14){
-    cut_seq<-seq(0,nrow(panm)+1,8)
-    cut_seq[length(cut_seq)]<-nrow(panm)
-    a4$Genomes<-as.numeric(as.factor(a4$Genomes))
-    a4$Genomes<-cut(a4$Genomes,cut_seq)
-    a4<-a4%>%group_by(Genomes) %>%
-      summarise(Clusters = sum(Clusters))
 
-  }
+  if(missing(use_log)){use_log=TRUE}
+
+  if(use_log=TRUE){
+  a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
+  a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
+  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")}else{
+
+        a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
+        a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
+        a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
+           }
+
+  a4<-panm_summary(panm)
+          if(nrow(a4)>14){
+            cut_seq<-seq(0,nrow(panm)+1,8)
+            cut_seq[length(cut_seq)]<-nrow(panm)
+            a4$Genomes<-as.numeric(as.factor(a4$Genomes))
+            a4$Genomes<-cut(a4$Genomes,cut_seq)
+            a4<-a4%>%group_by(Genomes) %>%
+            summarise(Clusters = sum(Clusters))}
 
   a4<-tableGrob(a4,theme=ttheme_minimal(base_size = 9))
 
