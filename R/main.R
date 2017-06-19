@@ -4,6 +4,10 @@
 #' @param file Disk Path to file
 #' @export
 #' @examples make_panmatrix()
+#' @note  MCL output as described in F. E. Psomopoulos, O. T. Vrousgou, and P. A. Mitkas, "Large-scale modular comparative genomics: the Grid approach [v1; not peer reviewed]," F1000research 2015, vol. 4(ISCB Com, iss. 377, p. 1, 2015. doi:10.7490/f1000research.1110127.1
+#'        A. M. Kintsakis, F. E. Psomopoulos, and P. A. Mitkas, "Data-aware optimization of bioinformatics workflows in hybrid clouds," Journal of big data, vol. 3, iss. 20, pp. 1-26, 2016. doi:10.3389/fpls.2016.00554
+
+#'
 #'
 
 make_panmatrix<-function(x){
@@ -37,10 +41,6 @@ cluster_composition<-function(x){
   result_df_cl1<-x %>% group_by(.,Cluster,Organism) %>%
     summarise(.,Proteins=length(Protein))
   return(result_df_cl1)}
-
-
-
-
 
 
   panm<-x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
@@ -90,6 +90,43 @@ panm<-work_list %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
 
 org_names<-panm[,1]
 panm<-panm[,-1]}
+
+#' Make panmatrix (fami 2 MCL data)
+#'
+#' This function allows importing BLAST MCL output with default parameters
+#' @param path file Path to file
+#' @export
+#' @examples make_panmatrix_fami2("path")
+#'
+
+make_panmatrix_fami2<-function (file){
+  work_list <- read_delim(file, "\t", escape_double = FALSE,
+                          col_names = FALSE, trim_ws = TRUE)
+
+  work_list$V1<-(paste0("cluster",1:nrow(work_list)))
+  colvals<-paste0("X",1:(ncol(work_list)-1))
+  work_list <- gather(work_list,cluster,value,1:(ncol(work_list)-1))
+  work_list <- work_list[, c(1, 3)]
+  colnames(work_list) <- c("Cluster", "V1")
+  work_list <- work_list[complete.cases(work_list), ]
+  work_list <- separate(work_list, V1, into = c("n1", "n2",
+                                                "version", "PID"), sep = "-")
+  work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
+  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster,
+                                                         "\\(?[0-9,.]+\\)?")))
+  work_list <- work_list[, c(1, 2, 5)]
+  colnames(work_list) <- c("Cluster", "Organism", "Protein")
+  cluster_composition <- function(x) {
+    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
+      summarise(., Proteins = length(Protein))
+    return(result_df_cl1)
+  }
+  panm <- work_list %>% cluster_composition(.) %>% spread(.,
+                                                          Cluster, Proteins, fill = 0)
+  org_names <- panm[, 1]
+  panm <- panm[, -1]
+}
+
 
 #'  Panmatrix Summary
 #'
@@ -697,13 +734,12 @@ organism_names_panmatrix_fami<-function (file) {
 
 #'  Organism Names - MCL
 #'
-#' This function outputs the genome names of a MVL clustering type input
+#' This function outputs the genome names of a MCL clustering type input
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.sim Number of simulations
 #' @export
-#' @examples organism_names_panmatrix(file)
+#' @examples organism_names_panmatrix("path")
 
 org_names<-function(x){
 
@@ -737,17 +773,57 @@ org_names<-function(x){
       summarise(.,Proteins=length(Protein))
     return(result_df_cl1)}
 
-
-
-
-
-
   panm<-x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
   organism_names<-panm[,1]
   rm(panm)
   return(organism_names)
 
 }
+
+
+#'  Organism Names - MCL (fami2)
+#'
+#' This function outputs the genome names of a MCL clustering type input
+#'
+#'
+#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @export
+#' @examples organism_names_fami2("path")
+
+
+org_names_fami2<-function (file){
+  work_list <- read_delim(file, "\t", escape_double = FALSE,
+                          col_names = FALSE, trim_ws = TRUE)
+
+  work_list$V1<-(paste0("cluster",1:nrow(work_list)))
+  colvals<-paste0("X",1:(ncol(work_list)-1))
+  work_list <- gather(work_list,cluster,value,1:(ncol(work_list)-1))
+  work_list <- work_list[, c(1, 3)]
+  colnames(work_list) <- c("Cluster", "V1")
+  work_list <- work_list[complete.cases(work_list), ]
+  work_list <- separate(work_list, V1, into = c("n1", "n2",
+                                                "version", "PID"), sep = "-")
+  work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
+  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster,
+                                                         "\\(?[0-9,.]+\\)?")))
+  work_list <- work_list[, c(1, 2, 5)]
+  colnames(work_list) <- c("Cluster", "Organism", "Protein")
+  cluster_composition <- function(x) {
+    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
+      summarise(., Proteins = length(Protein))
+    return(result_df_cl1)
+  }
+  panm <- work_list %>% cluster_composition(.) %>% spread(.,
+                                                          Cluster, Proteins, fill = 0)
+  org_names <- panm[, 1]
+  return(org_names)
+}
+
+#'  Binomix machine
+#'
+#' This function is a helper borrowed from package micropan to be used to compute
+#'  binomial mixture pangenome models
+#'
 
 
 binomixMachine<-function (y, K, core.detect.prob = 1)
@@ -784,7 +860,11 @@ binomixMachine<-function (y, K, core.detect.prob = 1)
   return(list(estimates, mixmod))
 }
 
-
+#'   Truncated log likelihood
+#'
+#' This function is a helper borrowed from package micropan to be used to compute
+#'  truncated log likelihood
+#'
 
 negTruncLogLike<-function (p, y, core.p)
 {
@@ -845,3 +925,22 @@ grid_plot<-function(panm,use_log){
 
   grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))
   }
+
+#'  Pangenome agglomerative hierarchical clustering based on fluidity
+#'
+#' This function
+#' @param fluidity_list data produced from pm_fluidity_all
+#' @param method method of clustering as used in hclust()
+#' @param genome_names optional file to label genomes as outputed by organism_names() and similar functions
+#' @export
+#' @examples pm_cluster(fluidity_result,"ward.D",genome_names)
+
+pm_cluster<-function(fluidity_list,method="ward.D",genome_names){
+
+  dist_matrix <- spread(fluidity_list$data, Genome_1, value = Fluidity,
+                        fill = 0) #make matrix diagonal to convert to distance
+  dist_matrix <- dist_matrix[, -1]
+  clust_res<-hclust(as.dist(dist_matrix), method = method)
+  if(!missing(genome_names)){clust_res$labels<-genome_names$Organism}
+  return(clust_res)
+}

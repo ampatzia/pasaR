@@ -4,10 +4,10 @@
 \alias{pm_heaps}
 \title{Heap's Law fitting}
 \usage{
-pm_heaps(panmatrix, n.perm)
+pm_heaps(panmatrix, n_perm)
 }
 \arguments{
-\item{n.perm}{Number of permutations}
+\item{n_perm}{Number of permutations}
 
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 }
