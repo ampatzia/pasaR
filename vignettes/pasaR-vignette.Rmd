@@ -29,7 +29,7 @@ rm(Mpneumoniae.blast.panmat)
 
 # Introduction
 
- In this vignette we will showcase the package functions on the Mpneumoniae dataset offered on package **micropan**, obtained by  'r data( "Mpneumoniae.blast.panmat" )'.
+ In this vignette we will showcase the package functions on the Mpneumoniae dataset offered on package **micropan**, obtained by 'r data( "Mpneumoniae.blast.panmat" )'.
 
 # Genome summary
 
@@ -75,7 +75,7 @@ gp_plot(panm,plot_type = "bar",collapsed = TRUE)
 To decribe the fit of the data , two estimated parameters, intercept and decay parameter a. If a<1 then the pangenome is considered to be open. In this case we see that the pangenome is closed, meaning that some point adding new Pneumoniae strains to our data will not add new genes.
 
 ```{r,echo= FALSE}
-pm_heaps(panm,n.perm=1000)
+pm_heaps(panm,n_perm=1000)
 
 ```
 This is an optimized version of the heaps() function from package micropan.
