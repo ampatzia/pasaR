@@ -830,7 +830,7 @@ binomixMachine<-function (y, K, core.detect.prob = 1)
 {
   n <- sum(y)
   G <- length(y)
-  ctr <- list(maxit = 200*K, reltol = 1e-06)
+  ctr <- list(maxit = 200*K, reltol = 1e-8)
   np <- K - 1
   pmix0 <- rep(1, np)/K
   pdet0 <- (1:np)/(np + 1)
