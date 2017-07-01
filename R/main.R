@@ -353,71 +353,6 @@ return(p.hat)
 }
 
 
-#'  Binomial mixture fitting
-#'
-#' This function determines the closedness of the pangenome using a binomial mixture fit of the data.
-#'
-#'
-#' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param K.range Range of model components to be tested
-#'
-#' @details The function returns pangenome and core size estimation along with the propabilities
-#'  of the components.This is an optimized version of the binomixEstimate() function from package
-#'  micropan  (Snipen & Hiland, 2015).
-#'
-#' @export
-#' @examples pm_binom(panm, K.range =2:8)
-#'
-#' @references L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
-
-pm_binom<-function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
-{
-  pan.matrix <- sapply(pan.matrix, function(x) as.logical(x))
-  y <- table(factor(colSums(pan.matrix), levels = 1:dim(pan.matrix)[1]))
-  bic.tab <- matrix(NA, nrow = length(K.range), ncol = 3)
-  colnames(bic.tab) <- c("Core.size", "Pan.size", "BIC")
-  rownames(bic.tab) <- paste(K.range, "components")
-  mix.list <- vector("list", length(K.range))
-  for (i in 1:length(K.range)) {
-    lst <- binomixMachine(y, K.range[i], core.detect.prob)
-    bic.tab[i, ] <- lst[[1]]
-    mix.list[[i]] <- lst[[2]]
-  }
-  if (bic.tab[length(K.range), 3] == min(bic.tab[, 3]))
-    warning("Minimum BIC at maximum K, increase upper limit of K.range")
-  binomix <- list(BIC.table = bic.tab, Mix.list = mix.list)
-
-  return(binomix)
-}
-
-
-
-pm_chao<-function (panm) {
-  panm<-sapply(as.data.frame(panm),function(x) as.logical(x))
-  y <- table(factor(colSums(panm), levels = 1:dim(panm)[1]))
-
-  if (y[2] != 0){
-    pan.size.biased <- round(sum(y) + y[1]^2/(2 * y[2]))
-  }
-
-
-  pan.size <- round(sum(y) + (y[1]*(y[1]-1))/(2 * (y[2]+1))) #is bias corrected
-  fratio<-y[1]/y[2]
-  chao.variance<-y[2]*(0.5*(fratio)^2 + fratio^3 + 0.25*fratio^4 ) #chao 1987
-
-  C_var<- exp(1.96*sqrt(log(1+chao.variance/(pan.size-sum(y)))))
-
-  l_bound<- sum(y) +(pan.size-sum(y))/C_var
-  u_bound<- sum(y) +(pan.size-sum(y))*C_var
-
-  if(is.null(pan.size.biased)) {pan.size.biased<-NA}
-
-  results<-c(pan.size.biased,pan.size,chao.variance,l_bound,u_bound)
-
-  names(results)<- c("Estimated pangenome size - Biased","Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound","CI (95%)- Upper Bound")
-  return(results)
-
-}
 
 
 #'  Chao lower bound estimator
@@ -633,8 +568,6 @@ pm_fluidity_all<-function (panm){
     return(fluidity_list)}
 
 
-
-
 #'  Cluster Analysis with fluidity
 #'
 #' This function outputs the proposed gene clustering based on fluidity distance
@@ -645,7 +578,6 @@ pm_fluidity_all<-function (panm){
 #' @export
 #' @examples cluster_number(fluidity_list)
 #'
-
 
 
 cluster_number<-function(fluidity_list,method="ward.D"){
@@ -687,7 +619,6 @@ cluster_number<-function(fluidity_list,method="ward.D"){
   best_cluster[4,]<-c(which.min(s4)+1,"Entropy",round(min(s4, na.rm =TRUE),5))
   return(best_cluster)
 }
-
 
 
 
@@ -819,6 +750,46 @@ org_names_fami2<-function (file){
   return(org_names)
 }
 
+
+#'  Binomial mixture fitting
+#'
+#' This function determines the closedness of the pangenome using a binomial mixture fit of the data.
+#'
+#'
+#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param K.range Range of model components to be tested
+#'
+#' @details The function returns pangenome and core size estimation along with the propabilities
+#'  of the components.This is an optimized version of the binomixEstimate() function from package
+#'  micropan  (Snipen & Hiland, 2015).
+#'
+#' @export
+#' @examples pm_binom(panm, K.range =2:8)
+#'
+#' @references L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
+
+pm_binom<-function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
+{
+  pan.matrix <- sapply(pan.matrix, function(x) as.logical(x))
+  y <- table(factor(colSums(pan.matrix), levels = 1:dim(pan.matrix)[1]))
+  bic.tab <- matrix(NA, nrow = length(K.range), ncol = 3)
+  colnames(bic.tab) <- c("Core.size", "Pan.size", "BIC")
+  rownames(bic.tab) <- paste(K.range, "components")
+  mix.list <- vector("list", length(K.range))
+  for (i in 1:length(K.range)) {
+    lst <- binomixMachine(y, K.range[i], core.detect.prob)
+    bic.tab[i, ] <- lst[[1]]
+    mix.list[[i]] <- lst[[2]]
+  }
+  if (bic.tab[length(K.range), 3] == min(bic.tab[, 3]))
+    warning("Minimum BIC at maximum K, increase upper limit of K.range")
+  binomix <- list(BIC.table = bic.tab, Mix.list = mix.list)
+
+  return(binomix)
+}
+
+
+
 #'  Binomix machine
 #'
 #' This function is a helper borrowed from package micropan to be used to compute
@@ -886,6 +857,55 @@ negTruncLogLike<-function (p, y, core.p)
 
 
 
+
+#'  Gene membership
+#'
+#' This function produces a genes - membership plot  of the pangenome, i.e. the gene-cluster participation
+#' frequency in the pangenome.
+#'
+#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param Collapsed Defaults to True, sum the number of genes for all groups with more than
+#'                   three times the number of the genomes explored
+#' @param use_log Logical:Scale axis containing clusters with log, defaults to FALSE
+#' @export
+#' @examples mg_plot(panm)
+
+mg_plot<-function(object, collapsed ,use_log){
+
+  if (missing(use_log)){
+    use_log = FALSE}
+
+  if (missing(collapsed)){
+    collapsed = TRUE}
+
+
+  n_memb<-colSums(object)
+  Cluster<-rep("Cluster",length(Members))
+
+  sums<-data.frame(Members,Cluster)%>%
+    count(Cluster,n_memb)%>%rename(.,Genes="n")
+
+
+  if (collapsed == TRUE) {
+    p_limit <- 3 * nrow(object)
+    y1 <- filter(sums, n_memb >= p_limit)
+    sums <- filter(sums, n_memb < p_limit)
+    y1 <- data.frame(n_memb= p_limit, Members = sum(y1$Genes))
+    y3 <- bind_rows(sums, y1)
+  }
+
+  if (use_log == TRUE) {sums$Genes <- log(sums$Genes)}
+
+
+  p <- ggplot(y, aes(x = n_memb, y = Genes))+ geom_point()+xlan("Number of Members")
+  if (use_log == TRUE) {  p <- p + ylab("Genes (log)")}
+
+  p
+}
+
+
+
+
 #'  grid plot
 #'
 #' This function outputs cluster spread for genomes, genome participation per cluster,
@@ -905,23 +925,15 @@ grid_plot<-function(panm,use_log){
   if(use_log==TRUE){
   a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
   a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
-  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")}else{
+  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")
+  a4<-mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes (log)")}else{
 
         a1<-pm_plot(panm,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
         a2<-cp_plot(panm,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
         a3<-gp_plot(panm,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
+        a4<-mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes")
            }
 
-  a4<-panm_summary(panm)
-          if(nrow(a4)>14){
-            cut_seq<-seq(0,nrow(panm)+1,8)
-            cut_seq[length(cut_seq)]<-nrow(panm)
-            a4$Genomes<-as.numeric(as.factor(a4$Genomes))
-            a4$Genomes<-cut(a4$Genomes,cut_seq)
-            a4<-a4%>%group_by(Genomes) %>%
-            summarise(Clusters = sum(Clusters))}
-
-  a4<-tableGrob(a4,theme=ttheme_minimal(base_size = 9))
 
   grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))
   }
