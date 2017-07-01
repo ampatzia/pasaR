@@ -895,7 +895,7 @@ mg_plot<-function(object, collapsed ,use_log){
   if (use_log == TRUE) {sums$Genes <- log(sums$Genes)}
 
 
-  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+xlan("Number of Members")
+  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+xlab("Number of Members")
   if (use_log == TRUE) {  p <- p + ylab("Genes (log)")}
 
   p
