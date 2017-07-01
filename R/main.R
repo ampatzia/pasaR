@@ -881,7 +881,7 @@ mg_plot<-function(object, collapsed ,use_log){
   Cluster<-rep("Cluster",length(n_memb))
 
   sums<-data.frame(n_memb,Cluster)%>%
-    count(Cluster,n_memb)%>%rename(.,Genes="n")
+    count(Cluster,n_memb)%>%rename(.,Genes=n)
 
 
   if (collapsed == TRUE) {
@@ -895,7 +895,7 @@ mg_plot<-function(object, collapsed ,use_log){
   if (use_log == TRUE) {sums$Genes <- log(sums$Genes)}
 
 
-  p <- ggplot(y, aes(x = n_memb, y = Genes))+ geom_point()+xlan("Number of Members")
+  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+xlan("Number of Members")
   if (use_log == TRUE) {  p <- p + ylab("Genes (log)")}
 
   p
