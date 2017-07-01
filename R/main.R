@@ -881,7 +881,7 @@ mg_plot<-function(object, collapsed ,use_log){
   Cluster<-rep("Cluster",length(n_memb))
 
   sums<-data.frame(n_memb,Cluster)%>%
-    count(Cluster,n_memb)%>%rename(.,Genes="n")
+    count(Cluster,n_memb)%>%rename(.,Genes=n)
 
 
   if (collapsed == TRUE) {
