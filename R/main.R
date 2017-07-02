@@ -868,10 +868,8 @@ negTruncLogLike<-function (p, y, core.p)
 #' @export
 #' @examples mg_plot(panm)
 
-mg_plot<-function(object, collapsed ,use_log){
+mg_plot<-function(object, collapsed ,use_log=TRUE){
 
-  if (missing(use_log)){
-    use_log = FALSE}
 
   if (missing(collapsed)){
     collapsed = TRUE}
