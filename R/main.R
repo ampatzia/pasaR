@@ -8,40 +8,41 @@
 #'        A. M. Kintsakis, F. E. Psomopoulos, and P. A. Mitkas, "Data-aware optimization of bioinformatics workflows in hybrid clouds," Journal of big data, vol. 3, iss. 20, pp. 1-26, 2016. doi:10.3389/fpls.2016.00554
 
 
-make_panmatrix<-function(x){
+make_panmatrix <- function(x){
 
-make_base_df <- function(file){
+  make_base_df <- function(file){
 
-  work_list <-scan(file=x,what="character,n=195,",sep=" ", allowEscapes = TRUE)%>%
-    str_split_fixed(.," ", n = Inf) %>%
-    sapply(.,stri_escape_unicode) %>% #Escapes all Unicode (not ASCII-printable) code points ie. single /
-    sapply(., function(x) str_split_fixed(x,"[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
-    lapply(., function(x) str_split_fixed(x,"\\|", n=Inf))%>%
+    work_list <- scan(file=x,what="character,n=195,", sep=" ", allowEscapes = TRUE)%>%
+    str_split_fixed( ., " ", n = Inf) %>%
+    sapply(., stri_escape_unicode) %>%  #Escapes all Unicode (not ASCII-printable) code points ie. single /
+    sapply(., function(x) str_split_fixed(x, "[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
+    lapply(., function(x) str_split_fixed(x, "\\|", n=Inf))%>%
     lapply(., function(x) data.frame(x, stringsAsFactors=FALSE)) %>%
     lapply(., function(x){colnames(x)[1] <- "x1"; x}) %>%
     lapply(., function(x) separate(x,x1,into = c("Organism", "Protein", "Other"), sep="\\$"))%>%
     lapply(., function(x) x[,names(x) %in% c("Organism", "Protein") ])
 
-  for (i in 1:length(work_list)){
+    for (i in 1:length(work_list)){
 
-    work_list[[i]]<-transform(work_list[[i]],Cluster=i)}
+        work_list[[i]]<-transform(work_list[[i]],Cluster=i)
+    }
 
 
   #Make list to dataframe
-  result_df<-bind_rows(work_list)
+  result_df <- bind_rows(work_list)
   rm(work_list)
 
   return(result_df)
 
 }
 
-cluster_composition<-function(x){
-  result_df_cl1<-x %>% group_by(.,Cluster,Organism) %>%
-    summarise(.,Proteins=length(Protein))
-  return(result_df_cl1)}
+cluster_composition <- function(x){
+    result_df_cl1<-x %>% group_by(., Cluster,Organism) %>%
+    summarise(., Proteins=length(Protein))
+    return(result_df_cl1)}
 
 
-  panm<-x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
+  panm <- x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
   #organism_names<-panm[,1]
   panm<-panm[,-1]
   return(panm)
@@ -52,42 +53,41 @@ cluster_composition<-function(x){
 #'
 #' This function allows importing MCL output
 #' @param path file Path to file
-
 #' @export
 #' @examples make_panmatrix_fami()
 #'
 
 make_panmatrix_fami<-function(file){
-work_list <- read_delim(file,
-                          "\t", escape_double = FALSE, col_names = FALSE,
+  work_list <- read_delim(file, "\t", escape_double = FALSE, col_names = FALSE,
                           trim_ws = TRUE)
 
-split<-as.data.frame(str_split_fixed(work_list$X1," ",n=Inf))
+  split <- as.data.frame(str_split_fixed(work_list$X1," ", n=Inf))
 
-work_list<-bind_cols(split,work_list[,-1])
-work_list$V2<-as.character(work_list$V2)
-work_list<-gather(work_list,V1)
-work_list<-work_list[,c(1,3)]
-colnames(work_list)<-c("Cluster","V1")
-work_list<-work_list[complete.cases(work_list),]
-work_list<-separate(work_list,V1,into=c("n1","n2","version","PID"),sep="-")
-work_list$n1<-paste0(work_list$n1,"_",work_list$n2)
-work_list$Cluster<-as.numeric(unlist(str_extract_all(work_list$Cluster,"\\(?[0-9,.]+\\)?")))
+  work_list <- bind_cols(split,work_list[,-1])
+  work_list$V2 <- as.character(work_list$V2)
+  work_list <- gather(work_list,V1)
+  work_list <- work_list[, c(1,3)]
+  colnames(work_list) <- c("Cluster", "V1")
+  work_list <- work_list[complete.cases(work_list),]
+  work_list <- separate(work_list, V1, into=c("n1", "n2", "version", "PID"), sep="-")
+  work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
+  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster, "\\(?[0-9,.]+\\)?")))
 
-work_list<-work_list[,c(1,2,5)]
-colnames(work_list)<-c("Cluster","Organism","Protein")
+  work_list <- work_list[, c(1,2,5)]
+  colnames(work_list)<-c("Cluster", "Organism", "Protein")
 
-cluster_composition<-function(x){
-  result_df_cl1<-x %>% group_by(.,Cluster,Organism) %>%
-    summarise(.,Proteins=length(Protein))
-  return(result_df_cl1)}
+  cluster_composition <- function(x){
+    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
+    summarise(., Proteins=length(Protein))
+    return(result_df_cl1)
+    }
 
 
 
-panm<-work_list %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
+  panm <- work_list %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
 
-org_names<-panm[,1]
-panm<-panm[,-1]}
+  org_names <- panm[,1]
+  panm <- panm[,-1]}
 
 #' Make panmatrix (fami 2 MCL data)
 #'
@@ -101,9 +101,9 @@ make_panmatrix_fami2<-function (file){
   work_list <- read_delim(file, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
 
-  work_list$V1<-(paste0("cluster",1:nrow(work_list)))
-  colvals<-paste0("X",1:(ncol(work_list)-1))
-  work_list <- gather(work_list,cluster,value,1:(ncol(work_list)-1))
+  work_list$V1 <- (paste0("cluster", 1:nrow(work_list)))
+  colvals <- paste0("X", 1:(ncol(work_list)-1))
+  work_list <- gather(work_list, cluster,value, 1:(ncol(work_list)-1))
   work_list <- work_list[, c(1, 3)]
   colnames(work_list) <- c("Cluster", "V1")
   work_list <- work_list[complete.cases(work_list), ]
@@ -130,17 +130,16 @@ make_panmatrix_fami2<-function (file){
 #'
 #' This function produces a frequency table of Genome participation in clusters
 #' @param Panmatrix  Panmatrix produced by make_panmatrix functions
-
 #' @export
 #' @examples make_panmatrix_fami()
 #'
 
-panm_summary<-function (object, ...)
+panm_summary <- function (object, ...)
 {
-  object<-sapply(object,function(x) as.logical(x))
+  object <- sapply(object, function(x) as.logical(x))
   levs <- 1:nrow(object)
   y <- as.data.frame(table(factor(colSums(object), levels = levs)))
-  colnames(y)<-c("Genomes","Clusters")
+  colnames(y) <- c("Genomes", "Clusters")
   return(y)
 }
 
@@ -159,7 +158,7 @@ panm_summary<-function (object, ...)
 #'
 
 
-pm_plot<-function (object, show_cluster,plot_type,use_log)
+pm_plot <- function (object, show_cluster,plot_type, use_log)
 {
   #show_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
   #below it
@@ -170,22 +169,23 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
   if(missing(use_log)){use_log=TRUE}
 
 
-  object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
+  object <- sapply(object, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
 
   levs <- 1:nrow(object)
   y <- as.data.frame(table(factor(colSums(object), levels = levs)))
-  colnames(y)<-c("Genomes","Clusters")
-  y$Genomes<-as.numeric(as.character(y$Genomes))
+  colnames(y) <- c("Genomes","Clusters")
+  y$Genomes <- as.numeric(as.character(y$Genomes))
 
   if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
 
-  y<-y[!y$Genomes<show_cluster,]
-  p<-ggplot(y,aes(x=Genomes,y=Clusters))
-  if(use_log==TRUE){p<-p+ylab("Cluster (log)")}
+  y <- y[!y$Genomes<show_cluster,]
+  p <- ggplot(y,aes(x=Genomes, y=Clusters))
+  if(use_log==TRUE){p <- p+ylab("Cluster (log)")}
+
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="line"){
 
 
-    p+ geom_line()+geom_point()}else{
+      p+ geom_line()+geom_point()}else{
       message("This type of plot is not supported, use plot type line or bar.")
     }
 
@@ -208,26 +208,25 @@ pm_plot<-function (object, show_cluster,plot_type,use_log)
 #'
 
 
-cp_plot<-function (object, show_cluster,plot_type,use_log)
+cp_plot <- function (object, show_cluster,plot_type,use_log)
 {
-  #s
   if(missing(show_cluster)){show_cluster=0}
 
   if(missing(plot_type)){plot_type="point"}
   if(missing(use_log)){use_log=TRUE}
 
 
-  object<-sapply(object,function(x) as.logical(x))%>%.[,!colSums(.)<show_cluster]
+  object <- sapply(object, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
 
   levs <- 1:nrow(object)
-  y <- data.frame(Genomes=colSums(object),Cluster=seq(from=1,to=ncol(object),by=1))
+  y <- data.frame(Genomes=colSums(object), Cluster=seq(from=1, to=ncol(object), by=1))
 
-  colnames(y)<-c("Genomes","Clusters")
-  y$Genomes<-as.numeric(as.character(y$Genomes))
+  colnames(y) <- c("Genomes", "Clusters")
+  y$Genomes <- as.numeric(as.character(y$Genomes))
 
-  if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
-  y<-y[!y$Genomes<show_cluster,]
-  p<-ggplot(y,aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0,max(y$Genomes)+5,2))
+  if(use_log==TRUE){y$Clusters <- log(y$Clusters)}
+  y <- y[!y$Genomes<show_cluster,]
+  p <- ggplot(y, aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0, max(y$Genomes)+5, 2))
   if(use_log==TRUE){p<-p+xlab("Cluster (log)")}
 
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="point"){
@@ -259,7 +258,7 @@ cp_plot<-function (object, show_cluster,plot_type,use_log)
 #'
 
 
-gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
+gp_plot <- function (object, show_cluster, plot_type, collapsed=FALSE, use_log) {
   if (missing(show_cluster)) {show_cluster = 0}
   if (missing(plot_type)) {plot_type = "point"}
   if(missing(use_log)){use_log=TRUE}
@@ -267,21 +266,21 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
   levs <- 1:nrow(object)
   y <- data.frame(Genes = colSums(object), Cluster = seq(from = 1,
                                                          to = ncol(object), by = 1))
-  y<-as.data.frame(table(y$Genes))
-  colnames(y)<-c("Genes","Cluster")
+  y <- as.data.frame(table(y$Genes))
+  colnames(y)<-c("Genes", "Cluster")
 
-  y$Genes<-as.numeric(as.character(y$Genes))
+  y$Genes <- as.numeric(as.character(y$Genes))
   if(collapsed==TRUE){
-    p_limit<-3*nrow(object) #merge categories with more genes than 3* <number of genomes>
-    y1<-filter(y,Genes>=p_limit)
-    y<-filter(y,Genes<p_limit)
-    y1<-data.frame(Genes=p_limit,Cluster=sum(y1$Cluster))
-    y<-bind_rows(y,y1)}
+    p_limit <- 3*nrow(object) #merge categories with more genes than 3* <number of genomes>
+    y1 <- filter(y, Genes>=p_limit)
+    y <- filter(y, Genes<p_limit)
+    y1 <- data.frame(Genes=p_limit, Cluster=sum(y1$Cluster))
+    y <- bind_rows(y, y1)}
 
-  if(use_log==TRUE){y$Cluster<-log(y$Cluster)}
+  if(use_log==TRUE){y$Cluster <- log(y$Cluster)}
 
   p <- ggplot(y, aes(x = Genes, y = Cluster))
-  if(use_log==TRUE){p<-p+ylab("Cluster (log)")}
+  if(use_log==TRUE){p <- p+ylab("Cluster (log)")}
 
 
 
@@ -316,10 +315,10 @@ gp_plot<-function (object, show_cluster, plot_type,collapsed=FALSE,use_log) {
 #'
 #' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
-pm_heaps<-function (panmatrix, n_perm){
+pm_heaps <- function (panmatrix, n_perm){
   if (missing(n_perm)) {n_perm = 100}
-  pan.matrix<-sapply(panmatrix,function(x) as.logical(x))
-ng<-nrow(panmatrix)
+  pan.matrix <- sapply(panmatrix, function(x) as.logical(x))
+ng <- nrow(panmatrix)
 nmat <- matrix(0, nrow = (ng - 1), ncol = n_perm)
 
 nmat<-replicate(n_perm,{
@@ -329,8 +328,8 @@ nmat<-replicate(n_perm,{
 })
 
 nmat<-t(nmat)
-colnames(nmat)<-c(2:(ncol(nmat)+1))
-nmat<-gather(as.data.frame(nmat),genomes,genes)%>%transform(.,genomes=as.numeric(genomes))
+colnames(nmat) <- c(2:(ncol(nmat)+1))
+nmat <- ather(as.data.frame(nmat), genomes, genes)%>%transform(., genomes=as.numeric(genomes))
 
 
 p0 <- c(mean(nmat$genes[nmat$genomes == 2]), 1)
@@ -378,8 +377,8 @@ return(p.hat)
 #'
 #'
 
-pm_chao<-function (panm,biased=FALSE) {
-  panm<-sapply(as.data.frame(panm),function(x) as.logical(x))
+pm_chao <- function (panm,biased=FALSE) {
+  panm <- sapply(as.data.frame(panm),function(x) as.logical(x))
   y <- table(factor(colSums(panm), levels = 1:dim(panm)[1]))
 
   if (y[2] != 0){
@@ -388,23 +387,23 @@ pm_chao<-function (panm,biased=FALSE) {
 
 
   pan.size <- round(sum(y) + (y[1]*(y[1]-1))/(2 * (y[2]+1))) #is bias corrected
-  fratio<-y[1]/y[2]
-  chao.variance<-y[2]*(0.5*(fratio)^2 + fratio^3 + 0.25*fratio^4 ) #chao 1987
+  fratio <- y[1]/y[2]
+  chao.variance <- y[2]*(0.5*(fratio)^2 + fratio^3 + 0.25*fratio^4 ) #chao 1987
 
-  C_var<- exp(1.96*sqrt(log(1+chao.variance/(pan.size-sum(y)))))
+  C_var <- exp(1.96*sqrt(log(1+chao.variance/(pan.size-sum(y)))))
 
-  l_bound<- sum(y) +(pan.size-sum(y))/C_var
-  u_bound<- sum(y) +(pan.size-sum(y))*C_var
+  l_bound <- sum(y) +(pan.size-sum(y))/C_var
+  u_bound <- sum(y) +(pan.size-sum(y))*C_var
 
   if(is.null(pan.size.biased)) {pan.size.biased<-NA}
    if( biased==TRUE){
-  results<-c(pan.size.biased,pan.size,chao.variance,l_bound,u_bound)
+  results <- c(pan.size.biased, pan.size, chao.variance, l_bound, u_bound)
 
-  names(results)<- c("Estimated pangenome size - Biased","Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound","CI (95%)- Upper Bound")
+  names(results) <- c("Estimated pangenome size - Biased","Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound", "CI (95%)- Upper Bound")
   }else{
-    results<-c(pan.size,chao.variance,l_bound,u_bound)
+    results <- c(pan.size,chao.variance,l_bound,u_bound)
 
-    names(results)<- c("Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound","CI (95%)- Upper Bound")
+    names(results) <- c("Estimated pangenome size", " Estimator Variance","CI (95%) -Lower Bound", "CI (95%)- Upper Bound")
   }
 
 
@@ -434,9 +433,9 @@ pm_chao<-function (panm,biased=FALSE) {
 #' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 #' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
-pm_fluidity<-function (panm, n.sim = 10)
+pm_fluidity <- function (panm, n.sim = 10)
 {
-  panm<-sapply(as.data.frame(panm),function(x) as.logical(x))
+  panm <- sapply(as.data.frame(panm),function(x) as.logical(x))
   ng <- dim(panm)[1]
   flu <- rep(0, n.sim)
   for (i in 1:n.sim) {
@@ -460,7 +459,7 @@ pm_fluidity<-function (panm, n.sim = 10)
 
 
 
-gtools_comb<-function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
+gtools_comb <- function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 {
   if (mode(n) != "numeric" || length(n) != 1 || n < 1 || (n%%1) !=
       0)
@@ -522,47 +521,47 @@ gtools_comb<-function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 #' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 #' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
-pm_fluidity_all<-function (panm){
+pm_fluidity_all <- function (panm){
 
-  all_comb<-as.data.frame(gtools_comb(nrow(panm),2))
+  all_comb <- as.data.frame(gtools_comb(nrow(panm),2))
   panm <- sapply(panm, function(x) as.logical(x))
 
-  fluid<-function(x){
-    g1<-panm[x,] %>% .[,colSums(.)>0]
-    flu<-sum(abs(g1[1,]-g1[2,]))/sum(colSums(g1))
+  fluid <- function(x){
+    g1 <- panm[x,] %>% .[,colSums(.)>0]
+    flu <- sum(abs(g1[1,]-g1[2,]))/sum(colSums(g1))
 
     return(flu)}
 
-    all_comb$fluidity<-apply(all_comb,1,fluid)
-    colnames(all_comb)<-c("Genome_1","Genome_2","Fluidity")
+    all_comb$fluidity <- apply(all_comb,1,fluid)
+    colnames(all_comb) <- c("Genome_1","Genome_2","Fluidity")
 
 
 
-    test1<-split(all_comb,all_comb$Genome_1)
-    test2<-split(all_comb,all_comb$Genome_2)
-    dummy<-data.frame(Genome_1=as.numeric(NA),Genome_2=(NA),Fluidity=(NA))
-    test1[[max(all_comb$Genome_2)]]<-dummy
-    names(test1)[max(all_comb$Genome_2)]<-as.character(max(all_comb$Genome_2))
+    test1 <- split(all_comb,all_comb$Genome_1)
+    test2 <- split(all_comb,all_comb$Genome_2)
+    dummy <- data.frame(Genome_1=as.numeric(NA),Genome_2=(NA),Fluidity=(NA))
+    test1[[max(all_comb$Genome_2)]] <- dummy
+    names(test1)[max(all_comb$Genome_2)] <- as.character(max(all_comb$Genome_2))
 
 
-    test2$'1'<-dummy
-    test1<-test1[order(as.numeric(names(test1)))]
-    test2<-test2[order(as.numeric(names(test2)))]
+    test2$'1' <- dummy
+    test1 <- test1[order(as.numeric(names(test1)))]
+    test2 <- test2[order(as.numeric(names(test2)))]
 
 
-    test2<-lapply(test2, function(x){x<-x[,c(2,1,3)]})
-    test2<-lapply(test2,setNames,colnames(test1$`1`))
+    test2 <- lapply(test2, function(x){x<-x[,c(2,1,3)]})
+    test2 <- lapply(test2,setNames,colnames(test1$`1`))
 
-    tester_merge<-Map(rbind,test2, test1)
-
-
-    all_fluid<-do.call(rbind,tester_merge)%>%arrange(.,Genome_1,Genome_2)
-    all_fluid<-all_fluid[complete.cases(all_fluid),]
-    res<-all_fluid%>% group_by(.,Genome_1)%>%summarise(.,Fluidity=mean(Fluidity))%>%arrange(.,desc(Fluidity))
+    tester_merge <- Map(rbind,test2, test1)
 
 
+    all_fluid <- do.call(rbind,tester_merge)%>%arrange(.,Genome_1,Genome_2)
+    all_fluid <- all_fluid[complete.cases(all_fluid),]
+    res <- all_fluid%>% group_by(.,Genome_1)%>%summarise(.,Fluidity=mean(Fluidity))%>%arrange(.,desc(Fluidity))
 
-    fluidity_list<-list(fluidity=mean(all_comb$Fluidity),Standard_Deviation=sd(all_comb$Fluidity),data=all_fluid,genome_fluidity=res)
+
+
+    fluidity_list <- list(fluidity=mean(all_comb$Fluidity),Standard_Deviation=sd(all_comb$Fluidity),data=all_fluid,genome_fluidity=res)
     return(fluidity_list)}
 
 
@@ -578,18 +577,18 @@ pm_fluidity_all<-function (panm){
 #'
 
 
-cluster_number<-function(fluidity_list,method="ward.D"){
+cluster_number <- function(fluidity_list,method="ward.D"){
 
-  dist_matrix<-spread(fluidity_list$data,Genome_1,value=Fluidity,fill=0)
-  dist_matrix<-dist_matrix[,-1]
-  best_cluster<-data.frame(Clusters=NA,Index=NA,Value=NA)
+  dist_matrix <- spread(fluidity_list$data,Genome_1,value=Fluidity,fill=0)
+  dist_matrix <- dist_matrix[,-1]
+  best_cluster <- data.frame(Clusters=NA,Index=NA,Value=NA)
   s1=NULL
   for(i in 2:10){
     k=cutree(hclust(as.dist(dist_matrix),method=method),i)
     s1[i]=cluster.stats(as.dist(dist_matrix),k)$avg.silwidth
   }
-  s1<-s1[-1]
-  best_cluster[1,]<-c(which.max(s1)+1,"Average Silhuette Width",round(max(s1, na.rm =TRUE),5))
+  s1 <- s1[-1]
+  best_cluster[1,] <- c(which.max(s1)+1,"Average Silhuette Width",round(max(s1, na.rm =TRUE),5))
 
 
   s2=NULL
@@ -631,7 +630,7 @@ cluster_number<-function(fluidity_list,method="ward.D"){
 #' @examples organism_names_panmatrix_fami(file)
 #'
 
-organism_names_panmatrix_fami<-function (file) {
+organism_names_panmatrix_fami <- function (file) {
   work_list <- read_delim("~/Dataset#1/chlamydiae", "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
   split <- as.data.frame(str_split_fixed(work_list$X1, " ",
@@ -670,11 +669,11 @@ organism_names_panmatrix_fami<-function (file) {
 #' @export
 #' @examples organism_names_panmatrix("path")
 
-org_names<-function(x){
+org_names <- function(x){
 
   make_base_df <- function(file){
 
-    work_list <-scan(file=x,what="character,n=195,",sep=" ", allowEscapes = TRUE)%>%
+    work_list <- scan(file=x,what="character,n=195,",sep=" ", allowEscapes = TRUE)%>%
       str_split_fixed(.," ", n = Inf) %>%
       sapply(.,stri_escape_unicode) %>% #Escapes all Unicode (not ASCII-printable) code points ie. single /
       sapply(., function(x) str_split_fixed(x,"[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
@@ -690,15 +689,15 @@ org_names<-function(x){
 
 
     #Make list to dataframe
-    result_df<-bind_rows(work_list)
+    result_df <- bind_rows(work_list)
     rm(work_list)
 
     return(result_df)
 
   }
 
-  cluster_composition<-function(x){
-    result_df_cl1<-x %>% group_by(.,Cluster,Organism) %>%
+  cluster_composition <- function(x){
+    result_df_cl1 <- x %>% group_by(.,Cluster,Organism) %>%
       summarise(.,Proteins=length(Protein))
     return(result_df_cl1)}
 
@@ -720,7 +719,7 @@ org_names<-function(x){
 #' @examples organism_names_fami2("path")
 
 
-org_names_fami2<-function (file){
+org_names_fami2 <- function (file){
   work_list <- read_delim(file, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
 
@@ -766,7 +765,7 @@ org_names_fami2<-function (file){
 #'
 #' @references L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
 
-pm_binom<-function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
+pm_binom <- function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
 {
   pan.matrix <- sapply(pan.matrix, function(x) as.logical(x))
   y <- table(factor(colSums(pan.matrix), levels = 1:dim(pan.matrix)[1]))
@@ -795,7 +794,7 @@ pm_binom<-function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = T
 #'
 
 
-binomixMachine<-function (y, K, core.detect.prob = 1)
+binomixMachine <- function (y, K, core.detect.prob = 1)
 {
   n <- sum(y)
   G <- length(y)
@@ -835,7 +834,7 @@ binomixMachine<-function (y, K, core.detect.prob = 1)
 #'  truncated log likelihood
 #'
 
-negTruncLogLike<-function (p, y, core.p)
+negTruncLogLike <- function (p, y, core.p)
 {
   np <- length(p)/2
   p.det <- c(core.p, p[(np + 1):length(p)])
@@ -868,17 +867,17 @@ negTruncLogLike<-function (p, y, core.p)
 #' @export
 #' @examples mg_plot(panm)
 
-mg_plot<-function(object, collapsed ,use_log=TRUE){
+mg_plot <- function(object, collapsed ,use_log=TRUE){
 
 
   if (missing(collapsed)){
     collapsed = TRUE}
 
 
-  n_memb<-colSums(object)
-  Cluster<-rep("Cluster",length(n_memb))
+  n_memb <- colSums(object)
+  Cluster <- rep("Cluster",length(n_memb))
 
-  sums<-data.frame(n_memb,Cluster)%>%
+  sums <- data.frame(n_memb,Cluster)%>%
     count(Cluster,n_memb)%>%rename(.,Genes=n)
 
 
@@ -893,7 +892,7 @@ mg_plot<-function(object, collapsed ,use_log=TRUE){
   if (use_log == TRUE) {sums$Genes <- log(sums$Genes)}
 
 
-  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+xlab("Number of Members")
+  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+geom_line()+xlab("Number of Members")
   if (use_log == TRUE) {  p <- p + ylab("Genes (log)")}
 
   p
@@ -914,20 +913,20 @@ mg_plot<-function(object, collapsed ,use_log=TRUE){
 #' @examples grid_plot(panm)
 
 
-grid_plot<-function(panm,use_log){
+grid_plot <- function(panm,use_log){
 
   if(missing(use_log)){use_log=TRUE}
 
   if(use_log==TRUE){
-  a1<-pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
-  a2<-cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
-  a3<-gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")
-  a4<-mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes (log)")}else{
+  a1 <- pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
+  a2 <- cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
+  a3 <- gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")
+  a4 <- mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes (log)")}else{
 
-        a1<-pm_plot(panm,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
-        a2<-cp_plot(panm,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
-        a3<-gp_plot(panm,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
-        a4<-mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes")
+        a1 <- pm_plot(panm,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
+        a2 <- cp_plot(panm,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
+        a3 <- gp_plot(panm,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
+        a4 <- mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes")
            }
 
 
@@ -943,12 +942,12 @@ grid_plot<-function(panm,use_log){
 #' @export
 #' @examples pm_cluster(fluidity_result,"ward.D",genome_names)
 
-pm_cluster<-function(fluidity_list,method="ward.D",genome_names){
+pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 
   dist_matrix <- spread(fluidity_list$data, Genome_1, value = Fluidity,
                         fill = 0) #make matrix diagonal to convert to distance
   dist_matrix <- dist_matrix[, -1]
-  clust_res<-hclust(as.dist(dist_matrix), method = method)
-  if(!missing(genome_names)){clust_res$labels<-genome_names$Organism}
+  clust_res <- hclust(as.dist(dist_matrix), method = method)
+  if(!missing(genome_names)){clust_res$labels <- genome_names$Organism}
   return(clust_res)
 }
