@@ -329,7 +329,7 @@ nmat<-replicate(n_perm,{
 
 nmat<-t(nmat)
 colnames(nmat) <- c(2:(ncol(nmat)+1))
-nmat <- ather(as.data.frame(nmat), genomes, genes)%>%transform(., genomes=as.numeric(genomes))
+nmat <- gather(as.data.frame(nmat), genomes, genes)%>%transform(., genomes=as.numeric(genomes))
 
 
 p0 <- c(mean(nmat$genes[nmat$genomes == 2]), 1)
