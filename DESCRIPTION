@@ -15,7 +15,8 @@ Depends:
     stringi,
     stringr,
     readr,
-    fpc
+    fpc,
+    micropan
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

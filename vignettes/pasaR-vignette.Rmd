@@ -14,7 +14,6 @@ vignette: >
 library(pasaR) 
 library(knitr)
 library(micropan)
-library(microbenchmark)
 knitr::opts_chunk$set(dev = 'png')
 
 ```
