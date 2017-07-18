@@ -4,7 +4,7 @@
 \alias{mg_plot}
 \title{Gene membership}
 \usage{
-mg_plot(object, collapsed, use_log)
+mg_plot(object, collapsed, use_log = TRUE)
 }
 \arguments{
 \item{use_log}{Logical:Scale axis containing clusters with log, defaults to FALSE}

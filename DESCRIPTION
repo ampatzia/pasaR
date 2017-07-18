@@ -16,7 +16,7 @@ Depends:
     stringr,
     readr,
     fpc,
-    micropan
+    micropan    
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

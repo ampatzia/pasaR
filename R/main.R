@@ -518,7 +518,8 @@ gtools_comb <- function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 #' @examples pm_fluidity_all(panm)
 #'
 #'  @references
-#' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
+#' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity:
+#'  an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 #' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
 pm_fluidity_all <- function (panm){
