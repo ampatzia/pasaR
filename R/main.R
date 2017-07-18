@@ -97,7 +97,7 @@ make_panmatrix_fami<-function(file){
 #' @examples make_panmatrix_fami2("path")
 #'
 
-make_panmatrix_fami2<-function (file){
+make_panmatrix_fami2 <- function (file){
   work_list <- read_delim(file, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
 
