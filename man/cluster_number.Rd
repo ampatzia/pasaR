@@ -9,12 +9,12 @@ cluster_number(fluidity_list, method = "ward.D")
 \arguments{
 \item{fluidity_list}{List produced by fluidity_all()}
 
-\item{method}{Method of hierarchical clustering, see ?hclust()}
+\item{method}{Method of hierarchical clustering, see ?stats::hclust()}
 }
 \description{
 This function outputs the proposed gene clustering based on fluidity distance
 }
 \examples{
-cluster_number(fluidity_list)
+\dontrun{cluster_number(fluidity_list)}
 
 }

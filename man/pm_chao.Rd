@@ -4,10 +4,12 @@
 \alias{pm_chao}
 \title{Chao lower bound estimator}
 \usage{
-pm_chao(panm, biased = FALSE)
+pm_chao(Panmatrix, biased = FALSE)
 }
 \arguments{
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
+\item{biased}{produces a biased estimation, same as the chao() function in micropan}
 }
 \description{
 This function computes two versions of the lower bound Chao Estimator for the pangenome
@@ -20,7 +22,7 @@ The function prodused a biased & unbiased version of the metric along with varia
    This function is an optimized and expanded version of chao() from package micropan.
 }
 \examples{
-pm_chao(panm)
+\dontrun{pm_chao(Panmatrix)}
 
 }
 \references{

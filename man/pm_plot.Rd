@@ -4,23 +4,23 @@
 \alias{pm_plot}
 \title{Panmatrix Plots}
 \usage{
-pm_plot(object, show_cluster, plot_type, use_log)
+pm_plot(Panmatrix, show_cluster, plot_type, use_log)
 }
 \arguments{
+\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
 \item{show_cluster}{Integer value  optional parameter allows to user to "zoom",
 ignoring clusters that have organism participation below it}
 
 \item{plot_type}{Can be either line or bar}
 
 \item{use_log}{Logical:Scale axis containing clusters with log}
-
-\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 }
 \description{
 This function produces a basic plot of the pangenome.
    This can be either a line plot or a bar plot.
 }
 \examples{
-pm_plot(panm)
+\dontrun{pm_plot(Panmatrix)}
 
 }

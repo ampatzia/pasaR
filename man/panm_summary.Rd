@@ -4,7 +4,7 @@
 \alias{panm_summary}
 \title{Panmatrix Summary}
 \usage{
-panm_summary(object, ...)
+panm_summary(Panmatrix)
 }
 \arguments{
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
@@ -13,6 +13,6 @@ panm_summary(object, ...)
 This function produces a frequency table of Genome participation in clusters
 }
 \examples{
-make_panmatrix_fami()
+\dontrun{panm_summary(Panmatrix)}
 
 }

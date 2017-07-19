@@ -4,18 +4,18 @@
 \alias{grid_plot}
 \title{grid plot}
 \usage{
-grid_plot(panm, use_log)
+grid_plot(Panmatrix, use_log)
 }
 \arguments{
-\item{use_log}{Logical:Scale axis containing clusters with log}
-
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
+\item{use_log}{Logical:Scale axis containing clusters with log}
 }
 \description{
-This function outputs cluster spread for genomes, genome participation per cluster,
+This function outputs cluster tidyr::spread for genomes, genome participation per cluster,
 gene participation per cluster and a brief summary allowing a quick exploration
 of the available data
 }
 \examples{
-grid_plot(panm)
+\dontrun{grid_plot(panm)}
 }

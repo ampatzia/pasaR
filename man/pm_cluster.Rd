@@ -9,13 +9,13 @@ pm_cluster(fluidity_list, method = "ward.D", genome_names)
 \arguments{
 \item{fluidity_list}{data produced from pm_fluidity_all}
 
-\item{method}{method of clustering as used in hclust()}
+\item{method}{method of clustering as used in stats::hclust()}
 
 \item{genome_names}{optional file to label genomes as outputed by organism_names() and similar functions}
 }
 \description{
-This function
+This function performs agglomerative hierarchical clustering based on fluidity results
 }
 \examples{
-pm_cluster(fluidity_result,"ward.D",genome_names)
+\dontrun{pm_cluster(fluidity_result,"ward.D",genome_names)}
 }

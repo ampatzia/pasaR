@@ -4,12 +4,12 @@
 \alias{pm_heaps}
 \title{Heap's Law fitting}
 \usage{
-pm_heaps(panmatrix, n_perm)
+pm_heaps(Panmatrix, n_perm)
 }
 \arguments{
-\item{n_perm}{Number of permutations}
-
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
+\item{n_perm}{Number of permutations}
 }
 \description{
 This function determines the closedness of the pangenome using a curve fit of the data
@@ -20,7 +20,7 @@ The regression fit returns two estimated parameters, intercept and decay paramet
    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
 }
 \examples{
-pm_heaps(panm,100)
+ \dontrun{pm_heaps(Panmatrix,n_perm=100)}
 
 }
 \references{

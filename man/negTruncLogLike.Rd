@@ -10,3 +10,4 @@ negTruncLogLike(p, y, core.p)
 This function is a helper borrowed from package micropan to be used to compute
  truncated log likelihood
 }
+\keyword{internal}

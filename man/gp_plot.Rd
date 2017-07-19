@@ -4,25 +4,25 @@
 \alias{gp_plot}
 \title{Gene participation plots}
 \usage{
-gp_plot(object, show_cluster, plot_type, collapsed = FALSE, use_log)
+gp_plot(Panmatrix, show_cluster, plot_type, collapsed = FALSE, use_log)
 }
 \arguments{
+\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
 \item{show_cluster}{Integer value  optional parameter allows to user to "zoom",
 ignoring clusters that have organism participation below it}
 
 \item{plot_type}{Can be either line or bar}
 
+\item{collapsed}{Logical, TRUE merges all clusters with more than 3 times the number of genomes examined}
+
 \item{use_log}{Logical:Scale axis containing clusters with log}
-
-\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
-
-\item{plot_type}{Logical, TRUE merges all clusters with more than 3 times the number of genomes examined}
 }
 \description{
 This function produces a basic plot of the Gene paticipation per Cluster.
    This can be either a point plot or a bar plot.
 }
 \examples{
-gp_plot(panm)
+\dontrun{gp_plot(Panmatrix)}
 
 }

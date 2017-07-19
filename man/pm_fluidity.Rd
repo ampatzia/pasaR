@@ -4,12 +4,12 @@
 \alias{pm_fluidity}
 \title{Genome Fluidity with sampling}
 \usage{
-pm_fluidity(panm, n.sim = 10)
+pm_fluidity(Panmatrix, n.sim = 10)
 }
 \arguments{
-\item{n.sim}{Number of simulations}
-
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
+\item{n.sim}{Number of simulations,defaults to 10}
 }
 \description{
 This function computes fluidity with sampling, as implemented on package micropan (optimized for speed).
@@ -20,7 +20,7 @@ Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was 
 context of a pangenome analysis in (Kislyuk et al ,2011).
 }
 \examples{
-pm_fluidity(panm, n.sim=100)
+\dontrun{pm_fluidity(Panmatrix, n.sim=100)}
 
 }
 \references{

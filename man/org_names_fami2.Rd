@@ -4,14 +4,14 @@
 \alias{org_names_fami2}
 \title{Organism Names - MCL (fami2)}
 \usage{
-org_names_fami2(file)
+org_names_fami2(file_path)
 }
 \arguments{
-\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+\item{file_path}{Disk Path to file}
 }
 \description{
 This function outputs the genome names of a MCL clustering type input
 }
 \examples{
-organism_names_fami2("path")
+\dontrun{organism_names_fami2(file_path)}
 }

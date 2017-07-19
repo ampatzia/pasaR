@@ -1,25 +1,26 @@
 #'  Make panmatrix (MCL data)
 #'
 #' This function allows importing MCL output
-#' @param file Disk Path to file
+#' @param file_path Disk Path to file
 #' @export
-#' @examples make_panmatrix()
+#' @examples \dontrun{make_panmatrix(file_path)}
 #' @note  MCL output as described in F. E. Psomopoulos, O. T. Vrousgou, and P. A. Mitkas, "Large-scale modular comparative genomics: the Grid approach [v1; not peer reviewed]," F1000research 2015, vol. 4(ISCB Com, iss. 377, p. 1, 2015. doi:10.7490/f1000research.1110127.1
 #'        A. M. Kintsakis, F. E. Psomopoulos, and P. A. Mitkas, "Data-aware optimization of bioinformatics workflows in hybrid clouds," Journal of big data, vol. 3, iss. 20, pp. 1-26, 2016. doi:10.3389/fpls.2016.00554
+#' @importFrom magrittr "%>%"
 
 
-make_panmatrix <- function(x){
+make_panmatrix <- function(file_path){
 
   make_base_df <- function(file){
 
     work_list <- scan(file=x,what="character,n=195,", sep=" ", allowEscapes = TRUE)%>%
-    str_split_fixed( ., " ", n = Inf) %>%
-    sapply(., stri_escape_unicode) %>%  #Escapes all Unicode (not ASCII-printable) code points ie. single /
-    sapply(., function(x) str_split_fixed(x, "[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
-    lapply(., function(x) str_split_fixed(x, "\\|", n=Inf))%>%
+    stringr::str_split_fixed( ., " ", n = Inf) %>%
+    sapply(., stringi::stri_escape_unicode) %>%  #Escapes all Unicode (not ASCII-printable) code points ie. single /
+    sapply(., function(x) stringr::str_split_fixed(x, "[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
+    lapply(., function(x) stringr::str_split_fixed(x, "\\|", n=Inf))%>%
     lapply(., function(x) data.frame(x, stringsAsFactors=FALSE)) %>%
     lapply(., function(x){colnames(x)[1] <- "x1"; x}) %>%
-    lapply(., function(x) separate(x,x1,into = c("Organism", "Protein", "Other"), sep="\\$"))%>%
+    lapply(., function(x) tidyr::separate(x,x1,into = c("Organism", "Protein", "Other"), sep="\\$"))%>%
     lapply(., function(x) x[,names(x) %in% c("Organism", "Protein") ])
 
     for (i in 1:length(work_list)){
@@ -29,7 +30,7 @@ make_panmatrix <- function(x){
 
 
   #Make list to dataframe
-  result_df <- bind_rows(work_list)
+  result_df <- dplyr::bind_rows(work_list)
   rm(work_list)
 
   return(result_df)
@@ -37,12 +38,12 @@ make_panmatrix <- function(x){
 }
 
 cluster_composition <- function(x){
-    result_df_cl1<-x %>% group_by(., Cluster,Organism) %>%
-    summarise(., Proteins=length(Protein))
+    result_df_cl1<-x %>% dplyr::group_by(., Cluster,Organism) %>%
+    dplyr::summarise(., Proteins=length(Protein))
     return(result_df_cl1)}
 
 
-  panm <- x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
+  panm <- file_path %>% make_base_df(.) %>% cluster_composition(.) %>%tidyr::spread(.,Cluster,Proteins,fill=0)
   #organism_names<-panm[,1]
   panm<-panm[,-1]
   return(panm)
@@ -52,39 +53,39 @@ cluster_composition <- function(x){
 #' Make panmatrix (fami MCL data)
 #'
 #' This function allows importing MCL output
-#' @param path file Path to file
+#' @param file_path Disk path to file
 #' @export
-#' @examples make_panmatrix_fami()
+#' @examples \dontrun{make_panmatrix_fami(file_path)}
 #'
 
-make_panmatrix_fami<-function(file){
-  work_list <- read_delim(file, "\t", escape_double = FALSE, col_names = FALSE,
+make_panmatrix_fami<-function(file_path){
+  work_list <- readr::read_delim(file_path, "\t", escape_double = FALSE, col_names = FALSE,
                           trim_ws = TRUE)
 
-  split <- as.data.frame(str_split_fixed(work_list$X1," ", n=Inf))
+  split <- as.data.frame(stringr::str_split_fixed(work_list$X1," ", n=Inf))
 
-  work_list <- bind_cols(split,work_list[,-1])
+  work_list <- dplyr::bind_cols(split,work_list[,-1])
   work_list$V2 <- as.character(work_list$V2)
-  work_list <- gather(work_list,V1)
+  work_list <- tidyr::gather(work_list,V1)
   work_list <- work_list[, c(1,3)]
   colnames(work_list) <- c("Cluster", "V1")
-  work_list <- work_list[complete.cases(work_list),]
-  work_list <- separate(work_list, V1, into=c("n1", "n2", "version", "PID"), sep="-")
+  work_list <- work_list[stats::complete.cases(work_list),]
+  work_list <- tidyr::separate(work_list, V1, into=c("n1", "n2", "version", "PID"), sep="-")
   work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
-  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster, "\\(?[0-9,.]+\\)?")))
+  work_list$Cluster <- as.numeric(unlist(stringr::str_extract_all(work_list$Cluster, "\\(?[0-9,.]+\\)?")))
 
   work_list <- work_list[, c(1,2,5)]
   colnames(work_list)<-c("Cluster", "Organism", "Protein")
 
   cluster_composition <- function(x){
-    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
-    summarise(., Proteins=length(Protein))
+    result_df_cl1 <- x %>% dplyr::group_by(., Cluster, Organism) %>%
+    dplyr::summarise(., Proteins=length(Protein))
     return(result_df_cl1)
     }
 
 
 
-  panm <- work_list %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
+  panm <- work_list %>% cluster_composition(.) %>%tidyr::spread(.,Cluster,Proteins,fill=0)
 
   org_names <- panm[,1]
   panm <- panm[,-1]}
@@ -92,34 +93,34 @@ make_panmatrix_fami<-function(file){
 #' Make panmatrix (fami 2 MCL data)
 #'
 #' This function allows importing BLAST MCL output with default parameters
-#' @param path file Path to file
+#' @param file_path file Path to file
 #' @export
-#' @examples make_panmatrix_fami2("path")
+#' @examples \dontrun{make_panmatrix_fami2(file_path)}
 #'
 
-make_panmatrix_fami2 <- function (file){
-  work_list <- read_delim(file, "\t", escape_double = FALSE,
+make_panmatrix_fami2 <- function (file_path){
+  work_list <- readr::read_delim(file_path, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
 
   work_list$V1 <- (paste0("cluster", 1:nrow(work_list)))
   colvals <- paste0("X", 1:(ncol(work_list)-1))
-  work_list <- gather(work_list, cluster,value, 1:(ncol(work_list)-1))
+  work_list <- tidyr::gather(work_list, cluster,value, 1:(ncol(work_list)-1))
   work_list <- work_list[, c(1, 3)]
   colnames(work_list) <- c("Cluster", "V1")
-  work_list <- work_list[complete.cases(work_list), ]
-  work_list <- separate(work_list, V1, into = c("n1", "n2",
+  work_list <- work_list[stats::complete.cases(work_list), ]
+  work_list <- tidyr::separate(work_list, V1, into = c("n1", "n2",
                                                 "version", "PID"), sep = "-")
   work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
-  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster,
+  work_list$Cluster <- as.numeric(unlist(stringr::str_extract_all(work_list$Cluster,
                                                          "\\(?[0-9,.]+\\)?")))
   work_list <- work_list[, c(1, 2, 5)]
   colnames(work_list) <- c("Cluster", "Organism", "Protein")
   cluster_composition <- function(x) {
-    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
-      summarise(., Proteins = length(Protein))
+    result_df_cl1 <- x %>% dplyr::group_by(., Cluster, Organism) %>%
+      dplyr::summarise(., Proteins = length(Protein))
     return(result_df_cl1)
   }
-  panm <- work_list %>% cluster_composition(.) %>% spread(.,
+  panm <- work_list %>% cluster_composition(.) %>% tidyr::spread(.,
                                                           Cluster, Proteins, fill = 0)
   org_names <- panm[, 1]
   panm <- panm[, -1]
@@ -131,12 +132,12 @@ make_panmatrix_fami2 <- function (file){
 #' This function produces a frequency table of Genome participation in clusters
 #' @param Panmatrix  Panmatrix produced by make_panmatrix functions
 #' @export
-#' @examples make_panmatrix_fami()
+#' @examples \dontrun{panm_summary(Panmatrix)}
 #'
 
-panm_summary <- function (object, ...)
+panm_summary <- function (Panmatrix)
 {
-  object <- sapply(object, function(x) as.logical(x))
+  object <- sapply(Panmatrix, function(x) as.logical(x))
   levs <- 1:nrow(object)
   y <- as.data.frame(table(factor(colSums(object), levels = levs)))
   colnames(y) <- c("Genomes", "Clusters")
@@ -154,11 +155,11 @@ panm_summary <- function (object, ...)
 #' @param plot_type Can be either line or bar
 #' @param use_log Logical:Scale axis containing clusters with log
 #' @export
-#' @examples pm_plot(panm)
+#' @examples \dontrun{pm_plot(Panmatrix)}
 #'
 
 
-pm_plot <- function (object, show_cluster,plot_type, use_log)
+pm_plot <- function (Panmatrix, show_cluster,plot_type, use_log)
 {
   #show_cluster: optional parameter allows to user to "zoom", ignoring clusters that have organism participation
   #below it
@@ -169,7 +170,7 @@ pm_plot <- function (object, show_cluster,plot_type, use_log)
   if(missing(use_log)){use_log=TRUE}
 
 
-  object <- sapply(object, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
+  object <- sapply(Panmatrix, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
 
   levs <- 1:nrow(object)
   y <- as.data.frame(table(factor(colSums(object), levels = levs)))
@@ -179,7 +180,7 @@ pm_plot <- function (object, show_cluster,plot_type, use_log)
   if(use_log==TRUE){y$Clusters<-log(y$Clusters)}
 
   y <- y[!y$Genomes<show_cluster,]
-  p <- ggplot(y,aes(x=Genomes, y=Clusters))
+  p <- ggplot2::ggplot(y,aes(x=Genomes, y=Clusters))
   if(use_log==TRUE){p <- p+ylab("Cluster (log)")}
 
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="line"){
@@ -204,11 +205,11 @@ pm_plot <- function (object, show_cluster,plot_type, use_log)
 #' @param plot_type Can be either line or bar
 #' @param use_log Logical:Scale axis containing clusters with log
 #' @export
-#' @examples cp_plot(panm)
+#' @examples \dontrun{cp_plot(Panmatrix)}
 #'
 
 
-cp_plot <- function (object, show_cluster,plot_type,use_log)
+cp_plot <- function (Panmatrix, show_cluster,plot_type,use_log)
 {
   if(missing(show_cluster)){show_cluster=0}
 
@@ -216,7 +217,7 @@ cp_plot <- function (object, show_cluster,plot_type,use_log)
   if(missing(use_log)){use_log=TRUE}
 
 
-  object <- sapply(object, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
+  object <- sapply(Panmatrix, function(x) as.logical(x))%>%.[, !colSums(.)<show_cluster]
 
   levs <- 1:nrow(object)
   y <- data.frame(Genomes=colSums(object), Cluster=seq(from=1, to=ncol(object), by=1))
@@ -226,7 +227,7 @@ cp_plot <- function (object, show_cluster,plot_type,use_log)
 
   if(use_log==TRUE){y$Clusters <- log(y$Clusters)}
   y <- y[!y$Genomes<show_cluster,]
-  p <- ggplot(y, aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0, max(y$Genomes)+5, 2))
+  p <- ggplot2::ggplot(y, aes(y=Genomes,x=Clusters))+scale_y_continuous(breaks=seq(0, max(y$Genomes)+5, 2))
   if(use_log==TRUE){p<-p+xlab("Cluster (log)")}
 
   if(plot_type=="bar"){p+ geom_bar(stat="identity")}else if(plot_type=="point"){
@@ -251,38 +252,36 @@ cp_plot <- function (object, show_cluster,plot_type,use_log)
 #' @param show_cluster Integer value  optional parameter allows to user to "zoom",
 #'     ignoring clusters that have organism participation below it
 #' @param plot_type Can be either line or bar
-#' @param plot_type Logical, TRUE merges all clusters with more than 3 times the number of genomes examined
+#' @param collapsed Logical, TRUE merges all clusters with more than 3 times the number of genomes examined
 #' @param use_log Logical:Scale axis containing clusters with log
 #' @export
-#' @examples gp_plot(panm)
+#' @examples \dontrun{gp_plot(Panmatrix)}
 #'
 
 
-gp_plot <- function (object, show_cluster, plot_type, collapsed=FALSE, use_log) {
+gp_plot <- function (Panmatrix, show_cluster, plot_type, collapsed=FALSE, use_log) {
   if (missing(show_cluster)) {show_cluster = 0}
   if (missing(plot_type)) {plot_type = "point"}
   if(missing(use_log)){use_log=TRUE}
 
-  levs <- 1:nrow(object)
-  y <- data.frame(Genes = colSums(object), Cluster = seq(from = 1,
-                                                         to = ncol(object), by = 1))
+  levs <- 1:nrow(Panmatrix)
+  y <- data.frame(Genes = colSums(Panmatrix), Cluster = seq(from = 1,
+                                                         to = ncol(Panmatrix), by = 1))
   y <- as.data.frame(table(y$Genes))
   colnames(y)<-c("Genes", "Cluster")
 
   y$Genes <- as.numeric(as.character(y$Genes))
   if(collapsed==TRUE){
-    p_limit <- 3*nrow(object) #merge categories with more genes than 3* <number of genomes>
-    y1 <- filter(y, Genes>=p_limit)
-    y <- filter(y, Genes<p_limit)
+    p_limit <- 3*nrow(Panmatrix) #merge categories with more genes than 3* <number of genomes>
+    y1 <- dplyr::filter(y, Genes>=p_limit)
+    y <- dplyr::filter(y, Genes<p_limit)
     y1 <- data.frame(Genes=p_limit, Cluster=sum(y1$Cluster))
-    y <- bind_rows(y, y1)}
+    y <- dplyr::bind_rows(y, y1)}
 
   if(use_log==TRUE){y$Cluster <- log(y$Cluster)}
 
-  p <- ggplot(y, aes(x = Genes, y = Cluster))
+  p <- ggplot2::ggplot(y, aes(x = Genes, y = Cluster))
   if(use_log==TRUE){p <- p+ylab("Cluster (log)")}
-
-
 
   if (plot_type == "bar") {
     p + geom_bar(stat = "identity")
@@ -308,17 +307,15 @@ gp_plot <- function (object, show_cluster, plot_type, collapsed=FALSE, use_log) 
 #' @details The regression fit returns two estimated parameters, intercept and decay parameter a.  If a<1 then the pangenome is considered to be open. This is an optimized version
 #'    of the heaps() function from package micropan. The theoretical aspects are discussed in the canonical work of Tettelin et  al. (2008)
 #'
-#'
-#'
 #' @export
-#' @examples pm_heaps(panm,100)
+#' @examples  \dontrun{pm_heaps(Panmatrix,n_perm=100)}
 #'
-#' @references  Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
+#' @references Tettelin, H., Riley, D., Cattuto, C., Medini, D. (2008). Comparative genomics: the bacterial pan-genome. Current Opinions in Microbiology, 12:472-477.
 
-pm_heaps <- function (panmatrix, n_perm){
+pm_heaps <- function (Panmatrix, n_perm){
   if (missing(n_perm)) {n_perm = 100}
-  pan.matrix <- sapply(panmatrix, function(x) as.logical(x))
-ng <- nrow(panmatrix)
+  pan.matrix <- sapply(Panmatrix, function(x) as.logical(x))
+ng <- nrow(Panmatrix)
 nmat <- matrix(0, nrow = (ng - 1), ncol = n_perm)
 
 nmat<-replicate(n_perm,{
@@ -329,7 +326,7 @@ nmat<-replicate(n_perm,{
 
 nmat<-t(nmat)
 colnames(nmat) <- c(2:(ncol(nmat)+1))
-nmat <- gather(as.data.frame(nmat), genomes, genes)%>%transform(., genomes=as.numeric(genomes))
+nmat <- tidyr::gather(as.data.frame(nmat), genomes, genes)%>%transform(., genomes=as.numeric(genomes))
 
 
 p0 <- c(mean(nmat$genes[nmat$genomes == 2]), 1)
@@ -342,7 +339,7 @@ objectFun<-function (p, x, y)
   return(J)
 }
 
-fit <- optim(p0, objectFun, gr = NULL, nmat$genomes, nmat$genes, method = "L-BFGS-B",
+fit <- stats::optim(p0, objectFun, gr = NULL, nmat$genomes, nmat$genes, method = "L-BFGS-B",
              lower = c(0, 0), upper = c(10000, 2))
 p.hat <- fit$par
 names(p.hat) <- c("Intercept", "alpha")
@@ -359,26 +356,23 @@ return(p.hat)
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param biased produces a biased estimation, same as the chao() function in micropan
 #'
-#'@details The function prodused a biased & unbiased version of the metric along with variance
+#' @details The function prodused a biased & unbiased version of the metric along with variance
 #'    and a 95% CI . This is a conservative estimator, ie. it is likely to produce a small
 #'    estimation of the pangenome compared to other estimators.
 #'    This function is an optimized and expanded version of chao() from package micropan.
 #'
 #'
-#'
-#'
 #' @export
-#' @examples pm_chao(panm)
+#' @examples \dontrun{pm_chao(Panmatrix)}
 #'
 #' @references
 #' Chao, A. (1987). Estimating the population size for capture-recapture data with unequal catchability. Biometrics 43, 783-791.
 #' Gotelli, N.J. and Colwell, R.K., 2011. Estimating species richness. Biological diversity: frontiers in measurement and assessment, 12, pp.39-54.
-#'
-#'
 
-pm_chao <- function (panm,biased=FALSE) {
-  panm <- sapply(as.data.frame(panm),function(x) as.logical(x))
+pm_chao <- function (Panmatrix,biased=FALSE) {
+  panm <- sapply(as.data.frame(Panmatrix),function(x) as.logical(x))
   y <- table(factor(colSums(panm), levels = 1:dim(panm)[1]))
 
   if (y[2] != 0){
@@ -407,7 +401,6 @@ pm_chao <- function (panm,biased=FALSE) {
   }
 
 
-
   return(results)
 
 }
@@ -418,24 +411,21 @@ pm_chao <- function (panm,biased=FALSE) {
 #'
 #' This function computes fluidity with sampling, as implemented on package micropan (optimized for speed).
 #'   Fluidity takes values in [0,1], with 1 denoting no common genes.
-
-#'
-#'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.sim Number of simulations
+#' @param n.sim Number of simulations,defaults to 10
 #' @details Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
 #' context of a pangenome analysis in (Kislyuk et al ,2011).
 #' @export
-#' @examples pm_fluidity(panm, n.sim=100)
+#' @examples \dontrun{pm_fluidity(Panmatrix, n.sim=100)}
 #'
 #' @references
 #' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 #' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
-pm_fluidity <- function (panm, n.sim = 10)
+pm_fluidity <- function (Panmatrix, n.sim = 10)
 {
-  panm <- sapply(as.data.frame(panm),function(x) as.logical(x))
+  panm <- sapply(as.data.frame(Panmatrix),function(x) as.logical(x))
   ng <- dim(panm)[1]
   flu <- rep(0, n.sim)
   for (i in 1:n.sim) {
@@ -444,7 +434,7 @@ pm_fluidity <- function (panm, n.sim = 10)
     g2 <- panm[ii[2], ]
     flu[i] <- sum(abs(g1-g2))/(sum(g1) + sum(g2))
   }
-  flu.list <- list(Mean = mean(flu), Std = sd(flu))
+  flu.list <- list(Mean = mean(flu), Std = stats::sd(flu))
   return(flu.list)
 }
 
@@ -455,6 +445,7 @@ pm_fluidity <- function (panm, n.sim = 10)
 #'   This is an direct copy of the combination() function from package gtools, and is
 #'   used in function pm_fludity_all().
 #'
+#' @keywords internal
 
 
 
@@ -508,24 +499,22 @@ gtools_comb <- function (n, r, v = 1:n, set = TRUE, repeats.allowed = FALSE)
 #' This function computes fluidity without sampling.
 #'
 #'
-#'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.sim Number of simulations
 #' @export
 #' @details  Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was introduced is called the Sorensen distance (Deza & Deza, 2009) and was first introduced in the
 #'   context of a pangenome analysis in (Kislyuk et al ,2011).
 #'
-#' @examples pm_fluidity_all(panm)
+#' @examples \dontrun{pm_fluidity_all(Panmatrix)}
 #'
-#'  @references
+#' @references
 #' A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity:
 #'  an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 #' M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 
-pm_fluidity_all <- function (panm){
+pm_fluidity_all <- function (Panmatrix){
 
-  all_comb <- as.data.frame(gtools_comb(nrow(panm),2))
-  panm <- sapply(panm, function(x) as.logical(x))
+  all_comb <- as.data.frame(gtools_comb(nrow(Panmatrix),2))
+  panm <- sapply(Panmatrix, function(x) as.logical(x))
 
   fluid <- function(x){
     g1 <- panm[x,] %>% .[,colSums(.)>0]
@@ -551,18 +540,18 @@ pm_fluidity_all <- function (panm){
 
 
     test2 <- lapply(test2, function(x){x<-x[,c(2,1,3)]})
-    test2 <- lapply(test2,setNames,colnames(test1$`1`))
+    test2 <- lapply(test2,stats::setNames,colnames(test1$`1`))
 
     tester_merge <- Map(rbind,test2, test1)
 
 
-    all_fluid <- do.call(rbind,tester_merge)%>%arrange(.,Genome_1,Genome_2)
-    all_fluid <- all_fluid[complete.cases(all_fluid),]
-    res <- all_fluid%>% group_by(.,Genome_1)%>%summarise(.,Fluidity=mean(Fluidity))%>%arrange(.,desc(Fluidity))
+    all_fluid <- do.call(rbind,tester_merge)%>%dplyr::arrange(.,Genome_1,Genome_2)
+    all_fluid <- all_fluid[stats::complete.cases(all_fluid),]
+    res <- all_fluid%>% dplyr::group_by(.,Genome_1)%>%dplyr::summarise(.,Fluidity=mean(Fluidity))%>%arrange(.,dplyr::desc(Fluidity))
 
 
 
-    fluidity_list <- list(fluidity=mean(all_comb$Fluidity),Standard_Deviation=sd(all_comb$Fluidity),data=all_fluid,genome_fluidity=res)
+    fluidity_list <- list(fluidity=mean(all_comb$Fluidity),Standard_Deviation=stats::sd(all_comb$Fluidity),data=all_fluid,genome_fluidity=res)
     return(fluidity_list)}
 
 
@@ -572,21 +561,21 @@ pm_fluidity_all <- function (panm){
 #'
 #'
 #' @param fluidity_list List produced by fluidity_all()
-#' @param method  Method of hierarchical clustering, see ?hclust()
+#' @param method  Method of hierarchical clustering, see ?stats::hclust()
 #' @export
-#' @examples cluster_number(fluidity_list)
+#' @examples \dontrun{cluster_number(fluidity_list)}
 #'
 
 
 cluster_number <- function(fluidity_list,method="ward.D"){
 
-  dist_matrix <- spread(fluidity_list$data,Genome_1,value=Fluidity,fill=0)
+  dist_matrix <- tidyr::spread(fluidity_list$data,Genome_1,value=Fluidity,fill=0)
   dist_matrix <- dist_matrix[,-1]
   best_cluster <- data.frame(Clusters=NA,Index=NA,Value=NA)
   s1=NULL
   for(i in 2:10){
-    k=cutree(hclust(as.dist(dist_matrix),method=method),i)
-    s1[i]=cluster.stats(as.dist(dist_matrix),k)$avg.silwidth
+    k=stats:: cutree(stats::hclust(stats::as.dist(dist_matrix),method=method),i)
+    s1[i]=fpc::cluster.stats(stats::as.dist(dist_matrix),k)$avg.silwidth
   }
   s1 <- s1[-1]
   best_cluster[1,] <- c(which.max(s1)+1,"Average Silhuette Width",round(max(s1, na.rm =TRUE),5))
@@ -594,24 +583,24 @@ cluster_number <- function(fluidity_list,method="ward.D"){
 
   s2=NULL
   for(i in 2:10){
-    k=cutree(hclust(as.dist(dist_matrix),method=method),i)
-    s2[i]=cluster.stats(as.dist(dist_matrix),k)$widestgap
+    k=stats:: cutree(stats::hclust(stats::as.dist(dist_matrix),method=method),i)
+    s2[i]=fpc::cluster.stats(stats::as.dist(dist_matrix),k)$widestgap
   }
   s2<-s2[-1]
   best_cluster[2,]<-c(which.max(s2)+1,"Gap Statistic",round(max(s2, na.rm =TRUE),5))
 
   s3=NULL
   for(i in 2:10){
-    k=cutree(hclust(as.dist(dist_matrix),method=method),i)
-    s3[i]=cluster.stats(as.dist(dist_matrix),k)$dunn
+    k=stats:: cutree(stats::hclust(stats::as.dist(dist_matrix),method=method),i)
+    s3[i]=fpc::cluster.stats(stats::as.dist(dist_matrix),k)$dunn
   }
   s3<-s3[-1]
   best_cluster[3,]<-c(which.max(s3)+1,"Dunn",round(max(s3, na.rm =TRUE),5))
 
   s4=NULL
   for(i in 2:10){
-    k=cutree(hclust(as.dist(dist_matrix),method=method),i)
-    s4[i]=cluster.stats(as.dist(dist_matrix),k)$dunn
+    k=stats:: cutree(stats::hclust(stats::as.dist(dist_matrix),method=method),i)
+    s4[i]=fpc::cluster.stats(stats::as.dist(dist_matrix),k)$dunn
   }
   s4<-s4[-1]
   best_cluster[4,]<-c(which.min(s4)+1,"Entropy",round(min(s4, na.rm =TRUE),5))
@@ -625,36 +614,35 @@ cluster_number <- function(fluidity_list,method="ward.D"){
 #' This function outputs the genome names of a fami clustering type input
 #'
 #'
-#' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param n.sim Number of simulations
+#' @param file_path Path to file in disk
 #' @export
-#' @examples organism_names_panmatrix_fami(file)
+#' @examples \dontrun{organism_names_panmatrix_fami(file_path)}
 #'
 
-organism_names_panmatrix_fami <- function (file) {
-  work_list <- read_delim("~/Dataset#1/chlamydiae", "\t", escape_double = FALSE,
+organism_names_panmatrix_fami <- function (file_path) {
+  work_list <- readr::read_delim(file_path, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
-  split <- as.data.frame(str_split_fixed(work_list$X1, " ",
+  split <- as.data.frame(stringr::str_split_fixed(work_list$X1, " ",
                                          n = Inf))
-  work_list <- bind_cols(split, work_list[, -1])
+  work_list <- dplyr::bind_cols(split, work_list[, -1])
   work_list$V2 <- as.character(work_list$V2)
-  work_list <- gather(work_list, V1)
+  work_list <- tidyr::gather(work_list, V1)
   work_list <- work_list[, c(1, 3)]
   colnames(work_list) <- c("Cluster", "V1")
-  work_list <- work_list[complete.cases(work_list), ]
-  work_list <- separate(work_list, V1, into = c("n1", "n2",
+  work_list <- work_list[stats::complete.cases(work_list), ]
+  work_list <- tidyr::separate(work_list, V1, into = c("n1", "n2",
                                                 "version", "PID"), sep = "-")
   work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
-  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster,
+  work_list$Cluster <- as.numeric(unlist(stringr::str_extract_all(work_list$Cluster,
                                                          "\\(?[0-9,.]+\\)?")))
   work_list <- work_list[, c(1, 2, 5)]
   colnames(work_list) <- c("Cluster", "Organism", "Protein")
   cluster_composition <- function(x) {
-    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
-      summarise(., Proteins = length(Protein))
+    result_df_cl1 <- x %>% dplyr::group_by(., Cluster, Organism) %>%
+      dplyr::summarise(., Proteins = length(Protein))
     return(result_df_cl1)
   }
-  panm <- work_list %>% cluster_composition(.) %>% spread(.,
+  panm <- work_list %>% cluster_composition(.) %>% tidyr::spread(.,
                                                           Cluster, Proteins, fill = 0)
   org_names <- panm[, 1]
   return(org_names)
@@ -666,22 +654,22 @@ organism_names_panmatrix_fami <- function (file) {
 #' This function outputs the genome names of a MCL clustering type input
 #'
 #'
-#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param file_path Disk Path to file
 #' @export
-#' @examples organism_names_panmatrix("path")
+#' @examples \dontrun{organism_names_panmatrix(file_path)}
 
-org_names <- function(x){
+org_names <- function(file_path){
 
-  make_base_df <- function(file){
+  make_base_df <- function(x){
 
     work_list <- scan(file=x,what="character,n=195,",sep=" ", allowEscapes = TRUE)%>%
-      str_split_fixed(.," ", n = Inf) %>%
-      sapply(.,stri_escape_unicode) %>% #Escapes all Unicode (not ASCII-printable) code points ie. single /
-      sapply(., function(x) str_split_fixed(x,"[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
-      lapply(., function(x) str_split_fixed(x,"\\|", n=Inf))%>%
+      stringr::str_split_fixed(.," ", n = Inf) %>%
+      sapply(.,stringi::stri_escape_unicode) %>% #Escapes all Unicode (not ASCII-printable) code points ie. single /
+      sapply(., function(x) stringr::str_split_fixed(x,"[\\\\]+t|[^[:print:]]" , n = Inf)) %>%
+      lapply(., function(x) stringr::str_split_fixed(x,"\\|", n=Inf))%>%
       lapply(., function(x) data.frame(x, stringsAsFactors=FALSE)) %>%
       lapply(., function(x){colnames(x)[1] <- "x1"; x}) %>%
-      lapply(., function(x) separate(x,x1,into = c("Organism", "Protein", "Other"), sep="\\$"))%>%
+      lapply(., function(x) tidyr::separate(x,x1,into = c("Organism", "Protein", "Other"), sep="\\$"))%>%
       lapply(., function(x) x[,names(x) %in% c("Organism", "Protein") ])
 
     for (i in 1:length(work_list)){
@@ -690,7 +678,7 @@ org_names <- function(x){
 
 
     #Make list to dataframe
-    result_df <- bind_rows(work_list)
+    result_df <- dplyr::bind_rows(work_list)
     rm(work_list)
 
     return(result_df)
@@ -698,11 +686,11 @@ org_names <- function(x){
   }
 
   cluster_composition <- function(x){
-    result_df_cl1 <- x %>% group_by(.,Cluster,Organism) %>%
-      summarise(.,Proteins=length(Protein))
+    result_df_cl1 <- x %>% dplyr::group_by(.,Cluster,Organism) %>%
+      dplyr::summarise(.,Proteins=length(Protein))
     return(result_df_cl1)}
 
-  panm<-x %>% make_base_df(.) %>% cluster_composition(.) %>%spread(.,Cluster,Proteins,fill=0)
+  panm<-file_path %>% make_base_df(.) %>% cluster_composition(.) %>%tidyr::spread(.,Cluster,Proteins,fill=0)
   organism_names<-panm[,1]
   rm(panm)
   return(organism_names)
@@ -715,34 +703,34 @@ org_names <- function(x){
 #' This function outputs the genome names of a MCL clustering type input
 #'
 #'
-#' @param Panmatrix Panmatrix produced by make_panmatrix functions
+#' @param file_path Disk Path to file
 #' @export
-#' @examples organism_names_fami2("path")
+#' @examples \dontrun{organism_names_fami2(file_path)}
 
 
-org_names_fami2 <- function (file){
-  work_list <- read_delim(file, "\t", escape_double = FALSE,
+org_names_fami2 <- function (file_path){
+  work_list <- readr::read_delim(file_path, "\t", escape_double = FALSE,
                           col_names = FALSE, trim_ws = TRUE)
 
   work_list$V1<-(paste0("cluster",1:nrow(work_list)))
   colvals<-paste0("X",1:(ncol(work_list)-1))
-  work_list <- gather(work_list,cluster,value,1:(ncol(work_list)-1))
+  work_list <- tidyr::gather(work_list,cluster,value,1:(ncol(work_list)-1))
   work_list <- work_list[, c(1, 3)]
   colnames(work_list) <- c("Cluster", "V1")
-  work_list <- work_list[complete.cases(work_list), ]
-  work_list <- separate(work_list, V1, into = c("n1", "n2",
+  work_list <- work_list[stats::complete.cases(work_list), ]
+  work_list <- tidyr::separate(work_list, V1, into = c("n1", "n2",
                                                 "version", "PID"), sep = "-")
   work_list$n1 <- paste0(work_list$n1, "_", work_list$n2)
-  work_list$Cluster <- as.numeric(unlist(str_extract_all(work_list$Cluster,
+  work_list$Cluster <- as.numeric(unlist(stringr::str_extract_all(work_list$Cluster,
                                                          "\\(?[0-9,.]+\\)?")))
   work_list <- work_list[, c(1, 2, 5)]
   colnames(work_list) <- c("Cluster", "Organism", "Protein")
   cluster_composition <- function(x) {
-    result_df_cl1 <- x %>% group_by(., Cluster, Organism) %>%
-      summarise(., Proteins = length(Protein))
+    result_df_cl1 <- x %>% dplyr::group_by(., Cluster, Organism) %>%
+      dplyr::summarise(., Proteins = length(Protein))
     return(result_df_cl1)
   }
-  panm <- work_list %>% cluster_composition(.) %>% spread(.,
+  panm <- work_list %>% cluster_composition(.) %>% tidyr::spread(.,
                                                           Cluster, Proteins, fill = 0)
   org_names <- panm[, 1]
   return(org_names)
@@ -755,20 +743,22 @@ org_names_fami2 <- function (file){
 #'
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param K.range Range of model components to be tested
+#' @param K.range Range of model components to be tested, defaults to search from 2 to 8
+#' @param core.detect.prob Detection probability of core genes. Defaults to 1.0
 #'
 #' @details The function returns pangenome and core size estimation along with the propabilities
 #'  of the components.This is an optimized version of the binomixEstimate() function from package
 #'  micropan  (Snipen & Hiland, 2015).
 #'
 #' @export
-#' @examples pm_binom(panm, K.range =2:8)
+#' @examples \dontrun{pm_binom(panm, K.range =2:8)}
 #'
-#' @references L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
+#' @references
+#' L. Snipen and K. H. Liland, "micropan: an R-package for microbial pan-genomics.," BMC bioinformatics, vol. 16, p. 79, 2015
 
-pm_binom <- function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
+pm_binom <- function (Panmatrix, K.range = 2:8, core.detect.prob = 1)
 {
-  pan.matrix <- sapply(pan.matrix, function(x) as.logical(x))
+  pan.matrix <- sapply(Panmatrix, function(x) as.logical(x))
   y <- table(factor(colSums(pan.matrix), levels = 1:dim(pan.matrix)[1]))
   bic.tab <- matrix(NA, nrow = length(K.range), ncol = 3)
   colnames(bic.tab) <- c("Core.size", "Pan.size", "BIC")
@@ -792,7 +782,7 @@ pm_binom <- function (pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose =
 #'
 #' This function is a helper borrowed from package micropan to be used to compute
 #'  binomial mixture pangenome models
-#'
+#' @keywords internal
 
 
 binomixMachine <- function (y, K, core.detect.prob = 1)
@@ -807,7 +797,7 @@ binomixMachine <- function (y, K, core.detect.prob = 1)
   A <- rbind(c(rep(1, np), rep(0, np)), c(rep(-1, np), rep(0,
                                                            np)), diag(np + np), -1 * diag(np + np))
   b <- c(0, -1, rep(0, np + np), rep(-1, np + np))
-  est <- constrOptim(theta = p.initial, f = negTruncLogLike,
+  est <- stats::constrOptim(theta = p.initial, f = negTruncLogLike,
                      grad = NULL, method = "Nelder-Mead", control = ctr, ui = A,
                      ci = b, y = y, core.p = core.detect.prob)
   estimates <- numeric(3)
@@ -833,7 +823,7 @@ binomixMachine <- function (y, K, core.detect.prob = 1)
 #'
 #' This function is a helper borrowed from package micropan to be used to compute
 #'  truncated log likelihood
-#'
+#' @keywords internal
 
 negTruncLogLike <- function (p, y, core.p)
 {
@@ -862,38 +852,38 @@ negTruncLogLike <- function (p, y, core.p)
 #' frequency in the pangenome.
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
-#' @param Collapsed Defaults to True, sum the number of genes for all groups with more than
+#' @param collapsed Defaults to True, sum the number of genes for all groups with more than
 #'                   three times the number of the genomes explored
-#' @param use_log Logical:Scale axis containing clusters with log, defaults to FALSE
+#' @param use_log Logical,scales axis containing clusters with log, defaults to FALSE
 #' @export
-#' @examples mg_plot(panm)
+#' @examples \dontrun{mg_plot(Panmatrix)}
 
-mg_plot <- function(object, collapsed ,use_log=TRUE){
+mg_plot <- function(Panmatrix, collapsed ,use_log=TRUE){
 
 
   if (missing(collapsed)){
     collapsed = TRUE}
 
 
-  n_memb <- colSums(object)
+  n_memb <- colSums(Panmatrix)
   Cluster <- rep("Cluster",length(n_memb))
 
   sums <- data.frame(n_memb,Cluster)%>%
-    count(Cluster,n_memb)%>%rename(.,Genes=n)
+    count(Cluster,n_memb)%>%dplyr::rename(.,Genes=n)
 
 
   if (collapsed == TRUE) {
-    p_limit <- 3 * nrow(object)
-    y1 <- filter(sums, n_memb >= p_limit)
-    sums <- filter(sums, n_memb < p_limit)
+    p_limit <- 3 * nrow(Panmatrix)
+    y1 <- dplyr::filter(sums, n_memb >= p_limit)
+    sums <- dplyr::filter(sums, n_memb < p_limit)
     y1 <- data.frame(n_memb= p_limit, n_memb = sum(y1$Genes))
-    y3 <- bind_rows(sums, y1)
+    y3 <- dplyr::bind_rows(sums, y1)
   }
 
   if (use_log == TRUE) {sums$Genes <- log(sums$Genes)}
 
 
-  p <- ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+geom_line()+xlab("Number of Members")
+  p <- ggplot2::ggplot(sums, aes(x = n_memb, y = Genes))+ geom_point()+geom_line()+xlab("Number of Members")
   if (use_log == TRUE) {  p <- p + ylab("Genes (log)")}
 
   p
@@ -904,51 +894,51 @@ mg_plot <- function(object, collapsed ,use_log=TRUE){
 
 #'  grid plot
 #'
-#' This function outputs cluster spread for genomes, genome participation per cluster,
+#' This function outputs cluster tidyr::spread for genomes, genome participation per cluster,
 #' gene participation per cluster and a brief summary allowing a quick exploration
 #' of the available data
 #'
 #' @param Panmatrix Panmatrix produced by make_panmatrix functions
 #' @param use_log Logical:Scale axis containing clusters with log
 #' @export
-#' @examples grid_plot(panm)
+#' @examples \dontrun{grid_plot(panm)}
 
 
-grid_plot <- function(panm,use_log){
+grid_plot <- function(Panmatrix,use_log){
 
   if(missing(use_log)){use_log=TRUE}
 
   if(use_log==TRUE){
-  a1 <- pm_plot(panm,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
-  a2 <- cp_plot(panm,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
-  a3 <- gp_plot(panm,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")
-  a4 <- mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes (log)")}else{
+  a1 <- pm_plot(Panmatrix,use_log)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters (log)")
+  a2 <- cp_plot(Panmatrix,use_log)+ggtitle("Genome participation per Cluster")+xlab("Clusters (log)")
+  a3 <- gp_plot(Panmatrix,use_log)+ggtitle("Gene participation per Cluster")+ylab("Clusters (log)")
+  a4 <- mg_plot(Panmatrix,use_log)+ggtitle("Gene participation frequency")+ylab("Genes (log)")}else{
 
-        a1 <- pm_plot(panm,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
-        a2 <- cp_plot(panm,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
-        a3 <- gp_plot(panm,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
-        a4 <- mg_plot(panm,use_log)+ggtitle("Gene participation frequency")+ylab("Genes")
+        a1 <- pm_plot(Panmatrix,use_log=FALSE)+ggtitle(" Cluster spead for Genomes")+ylab("Clusters")
+        a2 <- cp_plot(Panmatrix,use_log=FALSE)+ggtitle("Genome participation per Cluster")+xlab("Clusters")
+        a3 <- gp_plot(Panmatrix,use_log=FALSE)+ggtitle("Gene participation per Cluster")+ylab("Clusters")
+        a4 <- mg_plot(Panmatrix,use_log)+ggtitle("Gene participation frequency")+ylab("Genes")
            }
 
 
-  grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))
+  gridExtra::grid.arrange(a1, a2,a3,a4, ncol=2, top = "Panmatrix exploration Plots", padding = unit(0.7, "line"))
   }
 
 #'  Pangenome agglomerative hierarchical clustering based on fluidity
 #'
-#' This function
+#' This function performs agglomerative hierarchical clustering based on fluidity results
 #' @param fluidity_list data produced from pm_fluidity_all
-#' @param method method of clustering as used in hclust()
+#' @param method method of clustering as used in stats::hclust()
 #' @param genome_names optional file to label genomes as outputed by organism_names() and similar functions
 #' @export
-#' @examples pm_cluster(fluidity_result,"ward.D",genome_names)
+#' @examples \dontrun{pm_cluster(fluidity_result,"ward.D",genome_names)}
 
 pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 
-  dist_matrix <- spread(fluidity_list$data, Genome_1, value = Fluidity,
+  dist_matrix <- tidyr::spread(fluidity_list$data, Genome_1, value = Fluidity,
                         fill = 0) #make matrix diagonal to convert to distance
   dist_matrix <- dist_matrix[, -1]
-  clust_res <- hclust(as.dist(dist_matrix), method = method)
+  clust_res <- stats::hclust(stats::as.dist(dist_matrix), method = method)
   if(!missing(genome_names)){clust_res$labels <- genome_names$Organism}
   return(clust_res)
 }

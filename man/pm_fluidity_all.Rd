@@ -4,12 +4,10 @@
 \alias{pm_fluidity_all}
 \title{Genome Fluidity}
 \usage{
-pm_fluidity_all(panm)
+pm_fluidity_all(Panmatrix)
 }
 \arguments{
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
-
-\item{n.sim}{Number of simulations}
 }
 \description{
 This function computes fluidity without sampling.
@@ -19,9 +17,11 @@ Fluidity takes values in [0,1], with 1 denoting no common genes.This metric was 
   context of a pangenome analysis in (Kislyuk et al ,2011).
 }
 \examples{
-pm_fluidity_all(panm)
+\dontrun{pm_fluidity_all(Panmatrix)}
 
- @references
-A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity???: an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
+}
+\references{
+A. O. Kislyuk, B. Haegeman, N. H. Bergman, and J. S. Weitz, "Genomic fluidity:
+ an integrative view of gene diversity within microbial populations," BMC genomics, pp. 12-32, 2011.
 M. M. Deza and E. Deza, Encyclopedia of Distances. Springer, 2009.
 }

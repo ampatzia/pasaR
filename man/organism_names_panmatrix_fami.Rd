@@ -4,17 +4,15 @@
 \alias{organism_names_panmatrix_fami}
 \title{Organism Names - fami}
 \usage{
-organism_names_panmatrix_fami(file)
+organism_names_panmatrix_fami(file_path)
 }
 \arguments{
-\item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
-
-\item{n.sim}{Number of simulations}
+\item{file_path}{Path to file in disk}
 }
 \description{
 This function outputs the genome names of a fami clustering type input
 }
 \examples{
-organism_names_panmatrix_fami(file)
+\dontrun{organism_names_panmatrix_fami(file_path)}
 
 }

@@ -4,15 +4,15 @@
 \alias{make_panmatrix_fami}
 \title{Make panmatrix (fami MCL data)}
 \usage{
-make_panmatrix_fami(file)
+make_panmatrix_fami(file_path)
 }
 \arguments{
-\item{path}{file Path to file}
+\item{file_path}{Disk path to file}
 }
 \description{
 This function allows importing MCL output
 }
 \examples{
-make_panmatrix_fami()
+\dontrun{make_panmatrix_fami(file_path)}
 
 }

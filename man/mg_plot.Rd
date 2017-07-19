@@ -4,20 +4,20 @@
 \alias{mg_plot}
 \title{Gene membership}
 \usage{
-mg_plot(object, collapsed, use_log = TRUE)
+mg_plot(Panmatrix, collapsed, use_log = TRUE)
 }
 \arguments{
-\item{use_log}{Logical:Scale axis containing clusters with log, defaults to FALSE}
-
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
 
-\item{Collapsed}{Defaults to True, sum the number of genes for all groups with more than
+\item{collapsed}{Defaults to True, sum the number of genes for all groups with more than
 three times the number of the genomes explored}
+
+\item{use_log}{Logical,scales axis containing clusters with log, defaults to FALSE}
 }
 \description{
 This function produces a genes - membership plot  of the pangenome, i.e. the gene-cluster participation
 frequency in the pangenome.
 }
 \examples{
-mg_plot(panm)
+\dontrun{mg_plot(Panmatrix)}
 }

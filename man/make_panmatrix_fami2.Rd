@@ -4,15 +4,15 @@
 \alias{make_panmatrix_fami2}
 \title{Make panmatrix (fami 2 MCL data)}
 \usage{
-make_panmatrix_fami2(file)
+make_panmatrix_fami2(file_path)
 }
 \arguments{
-\item{path}{file Path to file}
+\item{file_path}{file Path to file}
 }
 \description{
 This function allows importing BLAST MCL output with default parameters
 }
 \examples{
-make_panmatrix_fami2("path")
+\dontrun{make_panmatrix_fami2(file_path)}
 
 }

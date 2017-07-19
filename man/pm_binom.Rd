@@ -4,12 +4,14 @@
 \alias{pm_binom}
 \title{Binomial mixture fitting}
 \usage{
-pm_binom(pan.matrix, K.range = 3:5, core.detect.prob = 1, verbose = TRUE)
+pm_binom(Panmatrix, K.range = 2:8, core.detect.prob = 1)
 }
 \arguments{
-\item{K.range}{Range of model components to be tested}
-
 \item{Panmatrix}{Panmatrix produced by make_panmatrix functions}
+
+\item{K.range}{Range of model components to be tested, defaults to search from 2 to 8}
+
+\item{core.detect.prob}{Detection probability of core genes. Defaults to 1.0}
 }
 \description{
 This function determines the closedness of the pangenome using a binomial mixture fit of the data.
@@ -20,7 +22,7 @@ The function returns pangenome and core size estimation along with the propabili
  micropan  (Snipen & Hiland, 2015).
 }
 \examples{
-pm_binom(panm, K.range =2:8)
+\dontrun{pm_binom(panm, K.range =2:8)}
 
 }
 \references{

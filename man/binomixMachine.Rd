@@ -10,3 +10,4 @@ binomixMachine(y, K, core.detect.prob = 1)
 This function is a helper borrowed from package micropan to be used to compute
  binomial mixture pangenome models
 }
+\keyword{internal}
