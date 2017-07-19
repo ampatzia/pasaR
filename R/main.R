@@ -921,9 +921,9 @@ negTruncLogLike <- function (p, y, core.p)
 #' @param use_log Logical,scales axis containing clusters with log, defaults to FALSE
 #' @export
 #' @examples \dontrun{mg_plot(Panmatrix)}
+#' @importFrom dplyr n
 
 mg_plot <- function(Panmatrix, collapsed ,use_log=TRUE){
-
 
   if (missing(collapsed)){
     collapsed = TRUE}
@@ -933,7 +933,7 @@ mg_plot <- function(Panmatrix, collapsed ,use_log=TRUE){
   Cluster <- rep("Cluster",length(n_memb))
 
   sums <- data.frame(n_memb,Cluster)%>%
-    dplyr::count(Cluster,n_memb)%>%dplyr::rename(.,Genes=dplyr::n)
+    dplyr::count(Cluster,n_memb)%>%dplyr::rename(.,Genes=n)
 
 
   if (collapsed == TRUE) {
