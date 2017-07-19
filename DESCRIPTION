@@ -9,17 +9,17 @@ Description: Functions to read genome clustering results and allows
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends:
-    gridExtra,
-    tidyverse,
-    stringi,
-    stringr,
-    readr,
-    fpc,
-    micropan
+Depends: 
 Imports: magrittr,
          ggplot2,
-         dplyr
+         dplyr,
+         tidyr,
+         fpc,
+         gridExtra,
+         stringi,
+         stringr,
+         readr,
+         micropan
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
