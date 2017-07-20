@@ -6,7 +6,7 @@ Author: Stelios Batziakas
 Maintainer: Stelios Batziakas <ampatziakas@gmail.com>
 Description: Functions to read genome clustering results and allows
     their statistical analysis in the context of a pangenomic analysis. 
-License: GPL-3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: 
@@ -18,9 +18,9 @@ Imports: magrittr,
          gridExtra,
          stringi,
          stringr,
-         readr,
-         micropan
+         readr
 RoxygenNote: 6.0.1
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    micropan
 VignetteBuilder: knitr
