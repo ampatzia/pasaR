@@ -1006,7 +1006,10 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
                         fill = 0) #make matrix diagonal to convert to distance
   dist_matrix <- dist_matrix[, -1]
   clust_res <- stats::hclust(stats::as.dist(dist_matrix), method = method)
-  if(!missing(genome_names)){clust_res$labels <- genome_names$Organism}
+  if(class(genome_names)== "data.frame"){clust_res$labels <- genome_names$Organism}
+  if(class(genome_names)== "character"){clust_res$labels <- genome_names}
+  if(!missing(genome_names)){clust_res$labels <- paste0("gen_",seq(1,nrow(fluidity_list$genome_fluidity),1))}
+
   return(clust_res)
 }
 
@@ -1022,8 +1025,6 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 #' Pyogenes, thirty nine (39) of Bacillus cereus and seventeen (17) of
 #' Bacillus thuringiensis. Genome names are contained in the bac_stre_names
 #' dataset.
-#'
-#' @docType data
 #'
 #' @usage data(bac_stre)
 #'
@@ -1044,12 +1045,9 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 #' This dataset contains the names of the genomes inside the bac_stre dataset.
 #'
 #'
-#' @docType data
-#'
 #' @usage data(bac_stre_names)
 #'
-#'
-#' @keywords datasets
+
 #'
 #' @references Mpatziakas A, Psomopoulos FE, Moysiadis T and Sgardelis S. Computing pangenome statistics in R
 #'  F1000Research 2017, 6(ISCB Comm J):1529 (poster) (doi: 10.7490/f1000research.1114765.1)
