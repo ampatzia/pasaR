@@ -9,7 +9,7 @@ Description: Functions to read genome clustering results and allows
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: 
+Depends: R (>= 2.15.0)
 Imports: magrittr,
          ggplot2,
          dplyr,

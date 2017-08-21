@@ -1009,3 +1009,52 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
   if(!missing(genome_names)){clust_res$labels <- genome_names$Organism}
   return(clust_res)
 }
+
+
+#' Streptococcus and Bacillus pangenomic data
+#'
+#' A cluster membership data frame for genes from 81 bacterial genomes (rows) spread
+#' in 149721 clusters (columns).
+#' The dataset was created from publicly available data from Ensembl,It was produced
+#' by a standard clustering pipeline with the default settings (BLAST and MCL).
+#' and contains seven (81) strains of the following bacteria :
+#' twelve (12) of Streptococcus pneumoniae, thirteen (13) of Streptococcus
+#' Pyogenes, thirty nine (39) of Bacillus cereus and seventeen (17) of
+#' Bacillus thuringiensis. Genome names are contained in the bac_stre_names
+#' dataset.
+#'
+#' @docType data
+#'
+#' @usage data(bac_stre)
+#'
+#'
+#' @keywords datasets
+#'
+#' @references Mpatziakas A, Psomopoulos FE, Moysiadis T and Sgardelis S. Computing pangenome statistics in R
+#'  F1000Research 2017, 6(ISCB Comm J):1529 (poster) (doi: 10.7490/f1000research.1114765.1)
+#'
+#'
+#' @examples
+#' data(bac_stre)
+"bac_stre"
+
+
+#' Names of Streptococcus and Bacillus species
+#'
+#' This dataset contains the names of the genomes inside the bac_stre dataset.
+#'
+#'
+#' @docType data
+#'
+#' @usage data(bac_stre_names)
+#'
+#'
+#' @keywords datasets
+#'
+#' @references Mpatziakas A, Psomopoulos FE, Moysiadis T and Sgardelis S. Computing pangenome statistics in R
+#'  F1000Research 2017, 6(ISCB Comm J):1529 (poster) (doi: 10.7490/f1000research.1114765.1)
+#'
+#'
+#' @examples
+#' data(bac_stre_names)
+"bac_stre_names"
