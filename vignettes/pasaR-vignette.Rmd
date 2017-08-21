@@ -10,33 +10,34 @@ vignette: >
 ---
 
 
-```{r, message= FALSE, warning= FALSE}
+```{r load_libs, message= FALSE, warning= FALSE}
 library(pasaR) 
 library(knitr)
-library(micropan)
+library(dendextend)
 knitr::opts_chunk$set(dev = 'png')
 
 ```
 
-```{r, echo=FALSE}
-data( "Mpneumoniae.blast.panmat" )
-panm<- Mpneumoniae.blast.panmat
-panm<-as.data.frame(panm)
-rm(Mpneumoniae.blast.panmat)
+```{r load_data, echo=FALSE}
+data( "bac_stre" )
+data( "bac_stre_names" )
 
 ```
 
 # Introduction
 
- In this vignette we will showcase the package functions on the Mpneumoniae dataset offered on package **micropan**, obtained by 'r data( "Mpneumoniae.blast.panmat" )'.
+ In this vignette the package functions will be showcased on a dataset containing
+ seven (81) strains of the following bacteria : twelve (12) of Streptococcus pneumoniae,
+ thirteen (13) of Streptococcus Pyogenes, thirty nine (39) of Bacillus cereus and 
+ seventeen (17) of Bacillus thuringiensis.
 
 # Genome summary
 
-A summary of the genome participation to the clusters allows for an initial overview of the data
+A summary of the genome participation to the clusters allows for an initial overview of the data, something not so useful in cases of bigger datasets.
 
-```{r, echo=FALSE}
+```{r make_summary_table, echo=FALSE}
 
-kable(panm_summary(panm))
+kable(panm_summary(bac_stre))
 
 ```
 
@@ -44,54 +45,60 @@ kable(panm_summary(panm))
 # Exploring the data
 
 Another way of exploring the genome data is throught the use of plots. Three types of graphics are offered. User can  plot  Genome - Cluster participation, with  'r pm_plot()':
-```{r,echo=FALSE}
+```{r plot1,echo=FALSE}
 
-pm_plot(panm,plot_type = "bar")
+pm_plot(bac_stre,plot_type = "bar")
 
 
 ```
 
 Cluster participation - Genomes, with 'r cp_plot()':
 
-```{r,echo=FALSE}
+```{r plot2,echo=FALSE}
 
-cp_plot(panm,plot_type = "bar")
+cp_plot(bac_stre,plot_type = "bar")
 
 ```
 
 
 Genes - Cluster participation, with 'r gp_plot()':
 
-```{r,echo=FALSE}
+```{r plot3,echo=FALSE}
 
-gp_plot(panm,plot_type = "bar",collapsed = TRUE)
+gp_plot(bac_stre,plot_type = "bar",collapsed = TRUE)
 
 ```
 
+These plots can be be conviniently grouped by  'r grid_plot()':
 
+```{r plot4,echo=FALSE}
+
+grid_plot(bac_stre)
+
+```
 
 # Heaps Law fitting
-To decribe the fit of the data , two estimated parameters, intercept and decay parameter a. If a<1 then the pangenome is considered to be open. In this case we see that the pangenome is closed, meaning that some point adding new Pneumoniae strains to our data will not add new genes.
+To decribe the fit of the data , two estimated parameters, intercept and decay parameter a. If a<1, like this case then the pangenome is considered to be open, meaning that at any point adding new  strains to our data will add new genes.
 
-```{r,echo= FALSE}
-pm_heaps(panm,n_perm=1000)
+```{r heaps,echo= FALSE}
+pm_heaps(bac_stre,n_perm=50)
 
 ```
 This is an optimized version of the heaps() function from package micropan.
 
 # Binomial mixture fitting
 
-We can estimate the pangenome size and the pangenome core size through binomial mixtures as proposed by Snipen & Liland & implemented in package **micropan**. One must search the model with the optimal number of components. This is determined comparing the Bayesian Information criterion scores of the models and chosing the one with the smaller score. In our case the pangenome is composed by three components.  
-```{r, echo=FALSE}
+We can estimate the pangenome size and the pangenome core size through binomial mixtures as proposed by Snipen & Liland & implemented in package **micropan**. One must search the model with the optimal number of components. This is determined comparing the Bayesian Information criterion scores of the models and chosing the one with the smaller score. In our case the optimal pangenome composition seems to be three components.  
+```{r binom, echo=FALSE}
 
-pm_binom(panm, K.range = 3 )
+pm_binom(bac_stre, K.range = 9 )
 ```
 
 # Chao population estimator
 
-Another way to estimate the pangenome size  using the Chao lower bound estimator. The unbiased version of the estimator is provided, so results will vary in comparison with the results of function 'r chao()' **micropan** 
-```{r}
-pm_chao(panm)
+Another way to estimate the pangenome size  using the Chao lower bound estimator. The unbiased version of the estimator is provided, so results will vary in comparison with the results of function 'r chao()' **micropan** . 
+```{r chao , echo=FALSE}
+pm_chao(bac_stre)
 
 ```
 
@@ -100,9 +107,9 @@ pm_chao(panm)
 
 Another measure of interest is fluidity takes values in [0,1], with 1 denoting no common genes. Function **pm_fluidity()** computes fluidity with sampling, as implemented on package micropan, optimized for speed.
 
-```{r, echo= FALSE}
+```{r fluid_samp, echo= FALSE}
 
-pm_fluidity(panm, n.sim=1000)
+pm_fluidity(bac_stre, n.sim=100)
 
 ```
 
@@ -110,6 +117,33 @@ pm_fluidity(panm, n.sim=1000)
 
 The function **pm_fluidity_all** computes the exact value of fluidity, the standard deviation, the values for every pair and a mean value for each genome paired to all other genomes.
 
-```{r, echo=FALSE}
-pm_fluidity_all(panm)
+```{r fluid_all, echo=FALSE}
+pm_fluidity_all(bac_stre)
+```
+
+
+# Clustering with fluidity
+
+We can use the fluidity results as a distance measure and  'r cluster_number()' provides a proposal for the number of clusters found in dataset through hierarchical clustering.
+
+```{r fluid_clust, echo=FALSE}
+f_vals<-pm_fluidity_all(bac_stre)
+kable(cluster_number(f_vals))
+```
+ Gap  statistic proposes 2 clusters:
+```{r fluid_plot1 , echo=FALSE}
+res<-pm_cluster(f_vals,genome_names = bac_stre_names)
+
+dend<-as.dendrogram(res)
+dend <- set(dend, "labels_cex",0.8) 
+dend<-color_labels(dend, k = 2)
+plot(dend)
+
+```
+
+Dunn index proposed 3 clusters:
+```{r fluid_plot2, echo=FALSE}
+dend<-color_labels(dend, k = 2)
+plot(dend)
+
 ```

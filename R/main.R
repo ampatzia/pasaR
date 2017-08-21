@@ -1006,7 +1006,10 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
                         fill = 0) #make matrix diagonal to convert to distance
   dist_matrix <- dist_matrix[, -1]
   clust_res <- stats::hclust(stats::as.dist(dist_matrix), method = method)
-  if(!missing(genome_names)){clust_res$labels <- genome_names$Organism}
+  if(class(genome_names)== "data.frame"){clust_res$labels <- genome_names$Organism}
+  if(class(genome_names)== "character"){clust_res$labels <- genome_names}
+  if(!missing(genome_names)){clust_res$labels <- paste0("gen_",seq(1,nrow(fluidity_list$genome_fluidity),1))}
+
   return(clust_res)
 }
 
@@ -1024,7 +1027,7 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 #' dataset.
 #'
 #' @docType data
-#'
+#' @export
 #' @usage data(bac_stre)
 #'
 #'
@@ -1045,7 +1048,7 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 #'
 #'
 #' @docType data
-#'
+#' @export
 #' @usage data(bac_stre_names)
 #'
 #'

@@ -18,7 +18,8 @@ Imports: magrittr,
          gridExtra,
          stringi,
          stringr,
-         readr
+         readr,
+         dendextend
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown,

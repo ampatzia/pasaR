@@ -12,3 +12,8 @@ If package *devtools* is present, simply run:
 library(devtools)
 install_github("ampatzia/PasaR")
 ```
+
+# Relevant publications
+
+Mpatziakas A, Psomopoulos FE, Moysiadis T and Sgardelis S. Computing pangenome statistics in R. F1000Research 2017, 6(ISCB Comm J):1529 (poster) ([doi: 10.7490/f1000research.1114765.1](http://dx.doi.org/10.7490/f1000research.1114765.1))
+
