@@ -1029,8 +1029,6 @@ pm_cluster <- function(fluidity_list,method="ward.D",genome_names){
 #' @usage data(bac_stre)
 #'
 #'
-#' @keywords datasets
-#'
 #' @references Mpatziakas A, Psomopoulos FE, Moysiadis T and Sgardelis S. Computing pangenome statistics in R
 #'  F1000Research 2017, 6(ISCB Comm J):1529 (poster) (doi: 10.7490/f1000research.1114765.1)
 #'
