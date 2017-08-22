@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ampatzia/pasaR.svg?branch=master)](https://travis-ci.org/ampatzia/pasaR) [![Rhub Status](https://img.shields.io/badge/R--hub%20builder-Ok-brightgreen.svg)](https://builder.r-hub.io/status/pasaR_0.0.9.tar.gz-f84cc4cfe30c41839876246c93e42f31)
+[![Build Status](https://travis-ci.org/ampatzia/pasaR.svg?branch=master)](https://travis-ci.org/ampatzia/pasaR) [![Rhub Status](https://img.shields.io/badge/R--hub%20builder-Ok-brightgreen.svg)](https://builder.r-hub.io/status/pasaR_0.9.0.tar.gz-f305af8988744383b040785d56c8a84e)
 
 # R package pasaR
 We present an R package, named pasaR, usable in the later stages of an pangenomic
