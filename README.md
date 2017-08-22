@@ -17,8 +17,8 @@ install_github("ampatzia/PasaR")
 
 Currently there are available two vignettes for the package, both precompiled in pdf:
 
-* [Small case study and example of usage in a pangenome of 81 bacterial strains.] (https://github.com/ampatzia/pasaR/blob/master/vignettes/Pangenome_analysis_with_pasaR.pdf) .
-* [Benchmark comparison to package micropan] (https://github.com/ampatzia/pasaR/blob/master/vignettes/Benchmark_Comparison.pdf) .
+* [Small case study and example of usage in a pangenome of 81 bacterial strains.](https://github.com/ampatzia/pasaR/blob/master/vignettes/Pangenome_analysis_with_pasaR.pdf) .
+* [Benchmark comparison to package micropan](https://github.com/ampatzia/pasaR/blob/master/vignettes/Benchmark_Comparison.pdf) .
 
 # Relevant publications
 
