@@ -1,7 +1,7 @@
 Package: pasaR
 Type: Package
 Title: Pangenome Statistical Analysis for R
-Version: 0.0.9
+Version: 0.9.0
 Author: Stelios Batziakas
 Maintainer: Stelios Batziakas <ampatziakas@gmail.com>
 Description: Functions to read genome clustering results and allows
@@ -18,10 +18,11 @@ Imports: magrittr,
          gridExtra,
          stringi,
          stringr,
-         readr,
-         dendextend
+         readr
 RoxygenNote: 6.0.1
 Suggests: knitr,
+    micropan,
     rmarkdown,
-    micropan
-VignetteBuilder: knitr
+    dendextend,
+    R.rsp
+VignetteBuilder: R.rsp
