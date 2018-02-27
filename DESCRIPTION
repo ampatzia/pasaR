@@ -20,9 +20,12 @@ Imports: magrittr,
          stringr,
          readr
 RoxygenNote: 6.0.1
-Suggests: knitr,
+Suggests:
+    knitr,
     micropan,
     rmarkdown,
     dendextend,
-    R.rsp
+    R.rsp,
+    testthat,
+    covr
 VignetteBuilder: R.rsp

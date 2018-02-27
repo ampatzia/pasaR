@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ampatzia/pasaR.svg?branch=master)](https://travis-ci.org/ampatzia/pasaR) [![Rhub Status](https://img.shields.io/badge/R--hub%20builder-Ok-brightgreen.svg)](https://builder.r-hub.io/status/original/pasaR_0.9.0.tar.gz-15185b02e6b84de9b3103203db732b84)
+[![Coverage Status](https://img.shields.io/codecov/c/github/ampatzia/pasaR/master.svg)](https://codecov.io/github/ampatzia/pasaR?branch=master)
 
 # R package pasaR
 We present an R package, named pasaR, usable in the later stages of an pangenomic
